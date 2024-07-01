@@ -15,7 +15,7 @@ CRM-система по учету продаж в строительной ко
 
 ## Архитектура
 
-![Alt text](misc/architecture.png)
+![Alt text](misc/architecture-2.png)
 
 - reverse proxy - swag (https://github.com/linuxserver/docker-swag)
 - sales-client - client (react, nginx)
