@@ -1,6 +1,6 @@
 # SALES
 
-CRM-система по учету продаж в строительной компании.
+**CRM-система по учету продаж в строительной компании.**
 
 - Frontend: React, Vite, Apollo Client, Zustand, Tailwind CSS, Storybook, Jest
 - Backend: Node.js, Express, Apollo GraphQL, Prisma ORM, MySQL
@@ -9,9 +9,7 @@ CRM-система по учету продаж в строительной ко
 
 ![Alt text](misc/main.png)
 
-## Демонстрация работы
-
-ВИДЕО: https://disk.yandex.ru/i/bAybj4y_u0soJA
+**ВИДЕО: https://disk.yandex.ru/i/bAybj4y_u0soJA**
 
 ## Архитектура
 
