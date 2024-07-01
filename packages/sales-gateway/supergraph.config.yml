@@ -1,0 +1,14 @@
+federation_version: =2.3.2
+subgraphs:
+  sales-main:
+    routing_url: http://localhost:9001
+    schema:
+      subgraph_url: http://localhost:9001
+  sales-common:
+    routing_url: http://localhost:9002
+    schema:
+      subgraph_url: http://localhost:9002
+  sales-pricing:
+    routing_url: http://localhost:9003
+    schema:
+      subgraph_url: http://localhost:9003

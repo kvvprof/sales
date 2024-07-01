@@ -1,0 +1,13 @@
+{
+	"name": "sales-gateway",
+	"private": true,
+	"main": "main.ts",
+	"scripts": {
+		"dev": "NODE_ENV=DEVELOPMENT nodemon",
+		"build": "rimraf dist && tsc && tsc-alias",
+		"start": "npm run build && NODE_ENV=PRODUCTION node dist/main.js",
+		"eslint": "eslint --quiet src",
+		"eslint:fix": "eslint --quiet src --fix",
+		"rover": "APOLLO_ELV2_LICENSE=accept rover supergraph compose --config ./supergraph.config.yml --output ./supergraph.gql"
+	}
+}

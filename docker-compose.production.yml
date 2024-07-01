@@ -1,0 +1,78 @@
+version: '3.9'
+
+services:
+  sales-client:
+    container_name: sales-client
+    build:
+      context: ./packages/sales-client
+    restart: unless-stopped
+    networks:
+      - sales-network
+
+  sales-gateway:
+    container_name: sales-gateway
+    build:
+      context: ./packages/sales-gateway
+    depends_on:
+      - sales-main
+      - sales-common
+      - sales-pricing
+    restart: unless-stopped
+    networks:
+      - sales-network
+
+  sales-main:
+    container_name: sales-main
+    build:
+      context: ./packages/sales-main
+    restart: unless-stopped
+    networks:
+      - sales-network
+
+  sales-common:
+    container_name: sales-common
+    build:
+      context: ./packages/sales-common
+    restart: unless-stopped
+    networks:
+      - sales-network
+
+  sales-pricing:
+    container_name: sales-pricing
+    build:
+      context: ./packages/sales-pricing
+    restart: unless-stopped
+    networks:
+      - sales-network
+
+  sales-guard:
+    container_name: sales-guard
+    build:
+      context: ./packages/sales-guard
+    restart: unless-stopped
+    networks:
+      - sales-network
+
+  swag:
+    container_name: swag
+    image: lscr.io/linuxserver/swag:latest
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - URL=xn--80ahhi0afh.xn--h1aanv1d.life
+      - VALIDATION=http
+    volumes:
+      - /swag/:/config
+    ports:
+      - 80:80
+      - 443:443
+    restart: unless-stopped
+    networks:
+      - sales-network
+
+networks:
+  sales-network:
+    driver: bridge

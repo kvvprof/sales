@@ -1,0 +1,13 @@
+{
+	"watch": ["src"],
+	"ext": "ts",
+	"ignore": [
+		"node_modules",
+		"dist",
+		"src/database/prisma",
+		"src/schemas/schema.types.ts",
+		"src/**/*.spec.ts",
+		"src/**/*.log"
+	],
+	"exec": "ts-node -r tsconfig-paths/register src/main.ts"
+}

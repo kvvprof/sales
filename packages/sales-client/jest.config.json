@@ -1,0 +1,7 @@
+{
+	"preset": "ts-jest",
+	"transform": {
+		"^.+\\.(js|jsx|ts|tsx)$": "ts-jest"
+	},
+	"transformIgnorePatterns": ["node_modules"]
+}

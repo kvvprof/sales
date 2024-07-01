@@ -1,0 +1,325 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "output"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model accounts {
+  id             Int         @id @default(autoincrement())
+  number         String      @db.VarChar(20)
+  bank_id        Int
+  contractors_id Int
+  banks          banks       @relation(fields: [bank_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "accounts_ibfk_1")
+  contractors    contractors @relation(fields: [contractors_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "accounts_ibfk_2")
+
+  @@index([bank_id], map: "bank_id")
+  @@index([contractors_id], map: "contractors_id")
+}
+
+model app_groups {
+  id           Int            @id @default(autoincrement())
+  name         String         @unique(map: "name") @db.VarChar(255)
+  applications applications[]
+}
+
+model applications {
+  id           String            @unique(map: "id") @db.VarChar(36)
+  name         String            @unique(map: "name") @db.VarChar(255)
+  active       Boolean?          @default(false)
+  type         applications_type @default(retool)
+  path         String?           @db.Char(255)
+  description  String?           @db.Text
+  app_group_id Int               @default(1)
+  app_groups   app_groups        @relation(fields: [app_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "applications_ibfk_1")
+  r_roles_apps r_roles_apps[]
+
+  @@index([app_group_id], map: "app_group_id")
+}
+
+model banks {
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @db.VarChar(255)
+  city                 String?                @db.VarChar(255)
+  bik                  String                 @unique(map: "bik") @db.VarChar(9)
+  correspondent_number String?                @db.VarChar(20)
+  accounts             accounts[]
+  banks_items_versions banks_items_versions[]
+}
+
+model banks_items {
+  id                   Int                   @id @default(autoincrement())
+  name                 String                @db.VarChar(255)
+  code                 String                @db.VarChar(255)
+  order_num            Int?
+  is_active            Boolean               @default(true)
+  created_at           DateTime?             @default(now()) @db.Timestamp(0)
+  updated_at           DateTime?             @default(now()) @db.Timestamp(0)
+  banks_pakets_id      Int?
+  propogated_at        DateTime?             @db.Timestamp(0)
+  version_id           BigInt?               @db.UnsignedBigInt
+  banks_pakets         banks_pakets?         @relation(fields: [banks_pakets_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "banks_items_ibfk_1")
+  banks_items_versions banks_items_versions? @relation(fields: [version_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_banks_items_to_versions")
+  items                items[]
+
+  @@index([banks_pakets_id], map: "banks_items_ibfk_1_idx")
+  @@index([version_id], map: "fk_banks_items_to_versions_idx")
+}
+
+model banks_pakets {
+  id            Int           @id @default(autoincrement())
+  name          String        @db.VarChar(255)
+  code          String        @db.VarChar(10)
+  order_num     Int?
+  is_active     Boolean       @default(true)
+  created_at    DateTime?     @default(now()) @db.Timestamp(0)
+  updated_at    DateTime?     @default(now()) @db.Timestamp(0)
+  propogated_at DateTime?     @db.Timestamp(0)
+  banks_items   banks_items[]
+}
+
+model blocks {
+  id            Int       @id @default(autoincrement())
+  name          String    @unique(map: "name") @db.VarChar(255)
+  code          String    @db.VarChar(10)
+  order_num     Int?
+  is_active     Boolean   @default(true)
+  created_at    DateTime? @default(now()) @db.Timestamp(0)
+  updated_at    DateTime? @default(now()) @db.Timestamp(0)
+  propogated_at DateTime? @db.Timestamp(0)
+  pakets        pakets[]
+}
+
+model contractors {
+  id                         Int                          @id @default(autoincrement())
+  name                       String                       @db.VarChar(255)
+  short_name                 String?                      @db.VarChar(255)
+  inn                        String?                      @db.VarChar(12)
+  kpp                        String?                      @db.VarChar(9)
+  ogrn                       String?                      @db.Char(20)
+  legal_address              String?                      @db.VarChar(255)
+  actual_address             String?                      @db.VarChar(255)
+  //taxation_type              contractors_taxation_type
+  contacts                   String?                      @db.VarChar(255)
+  reconciliation_link        String?                      @db.VarChar(255)
+  is_active                  Boolean                      @default(true)
+  propogated_at              DateTime?                    @db.Timestamp(0)
+  created_at                 DateTime?                    @default(now()) @db.Timestamp(0)
+  updated_at                 DateTime?                    @default(now()) @db.Timestamp(0)
+  phone                      String?                      @db.VarChar(20)
+  accounts                   accounts[]
+  r_users_client_contractors r_users_client_contractors[]
+}
+
+model floors {
+  id         Int       @id @default(autoincrement())
+  name       String    @db.VarChar(45)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+  section_id Int
+}
+
+model items {
+  id             Int          @id @default(autoincrement())
+  name           String       @db.VarChar(255)
+  code           String       @unique(map: "code") @db.VarChar(10)
+  clc_code       String?      @db.VarChar(5)
+  order_num      Int?
+  is_active      Boolean      @default(true)
+  sub_pakets_id  Int
+  banks_items_id Int?
+  created_at     DateTime?    @default(now()) @db.Timestamp(0)
+  updated_at     DateTime?    @default(now()) @db.Timestamp(0)
+  propogated_at  DateTime?    @db.Timestamp(0)
+  sub_pakets     sub_pakets   @relation(fields: [sub_pakets_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "items_ibfk_1")
+  banks_items    banks_items? @relation(fields: [banks_items_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "items_ibfk_2")
+
+  @@index([banks_items_id], map: "banks_items_id")
+  @@index([sub_pakets_id], map: "sub_pakets_id")
+}
+
+model objects {
+  id         Int        @id @default(autoincrement())
+  short_name String     @db.VarChar(45)
+  created_at DateTime?  @default(now()) @db.Timestamp(0)
+  updated_at DateTime?  @default(now()) @db.Timestamp(0)
+  entity_id  Int
+  entities   entities   @relation(fields: [entity_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_objects_to_entity")
+  sections   sections[]
+
+  @@index([entity_id], map: "fk_objects_to_entity_idx")
+}
+
+model pakets {
+  id            Int          @id @default(autoincrement())
+  name          String       @db.VarChar(255)
+  code          String       @db.VarChar(10)
+  order_num     Int?
+  is_active     Boolean      @default(true)
+  blocks_id     Int
+  created_at    DateTime?    @default(now()) @db.Timestamp(0)
+  updated_at    DateTime?    @default(now()) @db.Timestamp(0)
+  propogated_at DateTime?    @db.Timestamp(0)
+  blocks        blocks       @relation(fields: [blocks_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pakets_ibfk_1")
+  sub_pakets    sub_pakets[]
+
+  @@index([blocks_id], map: "blocks_id")
+}
+
+model r_roles_apps {
+  role_id      Int
+  app_id       String       @db.VarChar(36)
+  roles        roles        @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "r_roles_apps_ibfk_1")
+  applications applications @relation(fields: [app_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "r_roles_apps_ibfk_2")
+
+  @@id([role_id, app_id])
+  @@index([app_id], map: "app_id")
+}
+
+model r_users_client_contractors {
+  id              Int          @id @default(autoincrement())
+  contractors_id  Int
+  users_client_id Int
+  contractors     contractors  @relation(fields: [contractors_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_contractors_id")
+  users_client    users_client @relation(fields: [users_client_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_users_client_id")
+
+  @@index([contractors_id], map: "FK_contractors_id")
+  @@index([users_client_id], map: "FK_users_client_id")
+}
+
+model r_users_roles {
+  user_id Int
+  role_id Int
+  users   users @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "r_users_roles_ibfk_1")
+  roles   roles @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "r_users_roles_ibfk_2")
+
+  @@id([user_id, role_id])
+  @@index([role_id], map: "role_id")
+}
+
+model roles {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique(map: "name") @db.VarChar(255)
+  r_roles_apps  r_roles_apps[]
+  r_users_roles r_users_roles[]
+}
+
+model roles_client {
+  id           Int            @id @default(autoincrement())
+  name         String         @unique(map: "name") @db.VarChar(255)
+  users_client users_client[]
+}
+
+model sections {
+  id         Int       @id @default(autoincrement())
+  name       String    @db.VarChar(45)
+  object_id  Int
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_ad DateTime? @default(now()) @db.Timestamp(0)
+  objects    objects   @relation(fields: [object_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_sections_to_objects")
+
+  @@index([object_id], map: "fk_sections_to_objects_idx")
+}
+
+model sub_pakets {
+  id            Int       @id @default(autoincrement())
+  name          String    @db.VarChar(255)
+  code          String    @db.VarChar(10)
+  order_num     Int?
+  is_active     Boolean   @default(true)
+  pakets_id     Int
+  created_at    DateTime? @default(now()) @db.Timestamp(0)
+  updated_at    DateTime? @default(now()) @db.Timestamp(0)
+  propogated_at DateTime? @db.Timestamp(0)
+  items         items[]
+  pakets        pakets    @relation(fields: [pakets_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "sub_pakets_ibfk_1")
+
+  @@index([pakets_id], map: "pakets_id")
+}
+
+model users {
+  id            Int             @id @default(autoincrement())
+  name          String          @db.VarChar(255)
+  password      String          @unique(map: "password") @db.VarChar(255)
+  email         String          @unique(map: "email") @db.VarChar(255)
+  r_users_roles r_users_roles[]
+}
+
+model users_client {
+  id                         Int                          @id @default(autoincrement())
+  name                       String                       @db.VarChar(255)
+  email                      String                       @db.VarChar(255)
+  phone                      String                       @db.VarChar(20)
+  role_id                    Int                          @default(1)
+  created_at                 DateTime                     @default(now()) @db.DateTime(0)
+  updated_at                 DateTime                     @default(now()) @db.DateTime(0)
+  deleted_at                 DateTime?                    @db.DateTime(0)
+  r_users_client_contractors r_users_client_contractors[]
+  roles_client               roles_client                 @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_users_clients_roles_clients")
+
+  @@index([role_id], map: "FK_users_clients_roles_clients")
+  @@index([email], map: "email")
+  @@index([phone], map: "phone")
+}
+
+model banks_items_versions {
+  id          BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  name        String        @db.VarChar(255)
+  is_active   Boolean       @default(true)
+  bank_id     Int
+  created_at  DateTime      @default(now()) @db.Timestamp(0)
+  updated_at  DateTime      @default(now()) @db.Timestamp(0)
+  banks_items banks_items[]
+  banks       banks         @relation(fields: [bank_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_banks_items_versions_to_banks")
+
+  @@index([bank_id], map: "fk_banks_items_versions_to_banks_idx")
+}
+
+model entities {
+  id           Int       @id @default(autoincrement())
+  str_id       String    @unique(map: "str_id") @db.VarChar(50)
+  name         String    @unique(map: "name") @db.VarChar(255)
+  short_name   String    @db.VarChar(255)
+  display_name String    @db.VarChar(255)
+  inn          String    @db.VarChar(12)
+  kpp          String    @db.VarChar(9)
+  ogrn         String    @db.Char(20)
+  db_name      String    @db.VarChar(50)
+  //db_type      entities_db_type @default(uu)
+  objects      objects[]
+}
+
+model r_items_banks_items {
+  item_id      Int
+  bank_item_id Int
+  created_at   DateTime? @default(now()) @db.Timestamp(0)
+  updated_at   DateTime? @default(now()) @db.Timestamp(0)
+
+  @@id([item_id, bank_item_id])
+}
+
+enum applications_type {
+  retool
+  next
+  next_client @map("next-client")
+}
+
+// enum contractors_taxation_type {
+//   // НПД @map("НПД")
+//   // УСН @map("УСН")
+//   // НДС @map("НДС")
+//   // без НДС @map("без НДС")
+//   // ФЛ @map("ФЛ")
+//   // сотрудник @map("сотрудник")
+//   // ОСН @map("ОСН")
+//   // ИП @map("ИП")
+// }
+
+// enum entities_db_type {
+//   uu
+//   unitgrad
+// }

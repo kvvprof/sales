@@ -1,0 +1,100 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
+@import url('react-toastify/dist/ReactToastify.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+	--c-primary: #343F68;
+	--c-danger: #F62F31;
+	--c-success: #5CD17D;
+	--c-inactive: #C7C7C7;
+	--c-text-primary: #212843;
+	--c-text-secondary: #FFF;
+	--c-text-muted: #A6A6A6;
+	--c-bg-primary: #FFF;
+	--c-bg-secondary: #F2F2F2;
+	--c-line-primary: #F3F3F3;
+  --toastify-color-info: var(--c-primary);
+	--toastify-color-error: var(--c-danger);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--c-line-primary);
+  border-radius: 4px;
+}
+
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--c-primary);
+}
+
+* {
+	font-family: Roboto, sans-serif;
+}
+
+*:focus {
+  outline: none;
+}
+
+body {
+	font-size: 14px;
+	font-weight: 400;
+	color: var(--c-text-primary);
+	background-color: var(--c-bg-secondary)
+}
+
+li {
+	cursor: pointer;
+	list-style: none;
+}
+
+form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+table {
+	width: 100%;
+}
+
+thead {
+	text-align: left;
+	border-bottom: 1px solid var(--c-line-primary);
+}
+
+th, td {
+	padding: 10px;
+	border-bottom: 1px solid var(--c-line-primary);
+}
+
+tbody > tr:hover {
+	background-color: var(--c-bg-secondary);
+}
+
+td:first-child {
+	border-top-left-radius: 6px;
+	border-bottom-left-radius: 6px;
+}
+
+td:last-child {
+	border-top-right-radius: 6px;
+	border-bottom-right-radius: 6px;
+}
+
+.error-message {
+	font-size: 10px;
+	font-weight: 300;
+	color: var(--c-danger);
+}

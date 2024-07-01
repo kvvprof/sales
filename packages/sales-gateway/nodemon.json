@@ -1,0 +1,6 @@
+{
+	"watch": ["src", "supergraph.gql"],
+	"ext": "ts",
+	"ignore": ["node_modules", "dist", "src/**/*.spec.ts", "src/**/*.log"],
+	"exec": "ts-node -r tsconfig-paths/register src/main.ts"
+}

@@ -1,0 +1,17 @@
+{
+	"name": "sales-common",
+	"private": true,
+	"main": "main.ts",
+	"scripts": {
+		"dev": "npx prisma generate && NODE_ENV=DEVELOPMENT nodemon",
+		"build": "rimraf dist && tsc && npm run prisma:copy && tsc-alias",
+		"start": "npx prisma generate && npm run build && NODE_ENV=PRODUCTION node dist/main.js",
+		"codegen": "SCHEMA_PATH=http://localhost:9002 graphql-code-generator --config ../../codegen.server.ts",
+		"eslint": "eslint --quiet src",
+		"eslint:fix": "eslint --quiet src --fix",
+		"prisma:copy": "cpy 'src/database/prisma/output/**/*' 'dist/database/prisma/output' --parents",
+		"prisma:dev:pull": "dotenv -e .env.development -- npx prisma db pull --schema=./src/database/prisma/schema.prisma",
+		"prisma:dev:generate": "dotenv -e .env.development -- npx prisma generate --schema=./src/database/prisma/schema.prisma",
+		"prisma:prod:generate": "dotenv -e .env.production -- npx prisma generate --schema=./src/database/prisma/schema.prisma"
+	}
+}

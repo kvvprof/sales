@@ -1,0 +1,17 @@
+{
+	"name": "sales-guard",
+	"private": true,
+	"main": "main.ts",
+	"scripts": {
+		"dev": "NODE_ENV=DEVELOPMENT nodemon",
+		"build": "rimraf dist && tsc && tsc-alias",
+		"start": "npm run build && NODE_ENV=PRODUCTION node dist/main.js",
+		"codegen": "SCHEMA_PATH=http://localhost:9000 graphql-code-generator --config ../../codegen.client.ts",
+		"eslint": "eslint --quiet src",
+		"eslint:fix": "eslint --quiet src --fix",
+		"prisma:dev:pull": "dotenv -e .env.development -- npx prisma db pull",
+		"prisma:dev:generate": "dotenv -e .env.development -- npx prisma generate",
+		"prisma:prod:pull": "dotenv -e .env.production -- npx prisma db pull",
+		"prisma:prod:generate": "dotenv -e .env.production -- npx prisma generate"
+	}
+}

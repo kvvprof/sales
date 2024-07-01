@@ -1,0 +1,7 @@
+FROM sales-monorepo:latest
+
+WORKDIR /app
+
+COPY . .
+
+CMD ["npm", "run", "start"]
