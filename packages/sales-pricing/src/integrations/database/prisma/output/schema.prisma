@@ -1,0 +1,257 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "output"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model floor_pricing_rules {
+  id                     Int           @id @default(autoincrement()) @db.UnsignedInt
+  floor_id               Int           @db.UnsignedInt
+  product_type_id        Int
+  price_per_square_meter Decimal       @default(0.00) @db.Decimal(12, 2)
+  floors                 floors        @relation(fields: [floor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "floor_pricing_rules_floors_id_fk")
+  product_types          product_types @relation(fields: [product_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "floor_pricing_rules_product_types_id_fk")
+
+  @@unique([product_type_id, floor_id], map: "unique_index")
+  @@index([floor_id], map: "floor_pricing_rules_floors_id_fk")
+}
+
+model floors {
+  id                  Int                   @id @default(autoincrement()) @db.UnsignedInt
+  number              String                @db.VarChar(45)
+  section_id          Int                   @db.UnsignedInt
+  floor_pricing_rules floor_pricing_rules[]
+  sections            sections              @relation(fields: [section_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_floors_to_sections")
+  products            products[]
+
+  @@index([section_id], map: "fk_floors_to_sections_idx")
+}
+
+model integration_sources {
+  id           Int            @id @default(autoincrement()) @db.UnsignedInt
+  name         String         @db.VarChar(45)
+  integrations integrations[]
+}
+
+model integrations {
+  id                  Int                 @id @default(autoincrement()) @db.UnsignedInt
+  product_id          Int
+  source_id           Int                 @db.UnsignedInt
+  source_product_id   String              @db.VarChar(45)
+  products            products            @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_integrations_to_products")
+  integration_sources integration_sources @relation(fields: [source_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_integrations_to_sources")
+
+  @@unique([product_id, source_id, source_product_id], map: "integrations_source_id_source_product_id_uindex")
+  @@index([product_id], map: "fk_integrations_to_products_idx")
+  @@index([source_id], map: "fk_integrations_to_sources_idx")
+}
+
+model objects {
+  id                  Int              @id @default(autoincrement())
+  name                String
+  created_at          DateTime         @default(now())
+  updated_at          DateTime
+  common_db_object_id Int
+  product_types       product_types[]
+  products            products[]
+  r_tags_objects      r_tags_objects[]
+  sections            sections[]
+}
+
+model product_categories {
+  id                Int                 @id @default(autoincrement())
+  name              String
+  created_at        DateTime            @default(now())
+  updated_at        DateTime
+  products          products[]
+  r_tags_categories r_tags_categories[]
+}
+
+model product_files {
+  id         Int                @id @default(autoincrement()) @db.UnsignedInt
+  product_id Int
+  type       product_files_type
+  path       String             @db.VarChar(256)
+  products   products           @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "product_files_products_id_fk")
+
+  @@index([product_id], map: "product_files_products_id_fk")
+}
+
+model product_meter_numbers {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  product_id  Int      @unique(map: "product_meter_numbers_pk")
+  electricity String   @db.VarChar(64)
+  heating     String   @db.VarChar(64)
+  hot_water   String   @db.VarChar(64)
+  cold_water  String   @db.VarChar(64)
+  products    products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "product_meter_numbers_products_id_fk")
+}
+
+model product_price_history {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  product_id Int
+  price      Decimal  @db.Decimal(12, 2)
+  created_at DateTime @default(now()) @db.DateTime(0)
+  products   products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_product_price_history_to_products")
+
+  @@index([product_id], map: "fk_product_price_history_to_products_idx")
+}
+
+model product_pricing_rules {
+  id                     Int           @id @default(autoincrement()) @db.UnsignedInt
+  product_type_id        Int
+  step_number            Int
+  price_per_square_meter Decimal       @db.Decimal(12, 2)
+  flats_percent          Decimal       @db.Decimal(2, 2)
+  planned_days           Int
+  product_types          product_types @relation(fields: [product_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pricing_rules_product_types_id_fk")
+
+  @@unique([product_type_id, step_number], map: "product_pricing_rules_pk")
+}
+
+model product_types {
+  id                    Int                     @id @default(autoincrement())
+  name                  String
+  created_at            DateTime                @default(now())
+  updated_at            DateTime
+  object_id             Int
+  floor_pricing_rules   floor_pricing_rules[]
+  product_pricing_rules product_pricing_rules[]
+  objects               objects                 @relation(fields: [object_id], references: [id])
+  products              products[]
+  r_tags_product_types  r_tags_product_types[]
+
+  @@index([object_id], map: "product_types_object_id_fkey")
+}
+
+model products {
+  id                    Int                     @id @default(autoincrement())
+  number                String
+  area                  Decimal                 @db.Decimal(15, 2)
+  price                 Decimal                 @db.Decimal(15, 2)
+  one_gt_id             String?
+  created_at            DateTime                @default(now())
+  updated_at            DateTime
+  object_id             Int
+  product_type_id       Int?
+  category_id           Int
+  floor_id              Int?                    @db.UnsignedInt
+  integrations          integrations[]
+  product_files         product_files[]
+  product_meter_numbers product_meter_numbers?
+  product_price_history product_price_history[]
+  floors                floors?                 @relation(fields: [floor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_products_to_floors")
+  product_categories    product_categories      @relation(fields: [category_id], references: [id])
+  objects               objects                 @relation(fields: [object_id], references: [id])
+  product_types         product_types?          @relation(fields: [product_type_id], references: [id])
+  r_product_tags        r_product_tags[]
+  r_tags_products       r_tags_products[]
+
+  @@index([floor_id], map: "fk_products_to_floors_idx")
+  @@index([category_id], map: "products_category_id_fkey")
+  @@index([object_id], map: "products_object_id_fkey")
+  @@index([product_type_id], map: "products_product_type_id_fkey")
+}
+
+model projects {
+  id              Int               @id @default(autoincrement()) @db.UnsignedInt
+  name            String            @db.VarChar(255)
+  r_tags_projects r_tags_projects[]
+}
+
+model r_product_tags {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  product_id Int
+  tag_id     Int      @db.UnsignedInt
+  products   products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "r_product_tags_products_id_fk")
+  tags       tags     @relation(fields: [tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "r_product_tags_tags_id_fk")
+
+  @@index([product_id], map: "r_product_tags_products_id_fk")
+  @@index([tag_id], map: "r_product_tags_tags_id_fk")
+}
+
+model r_tags_categories {
+  id                 Int                @id @default(autoincrement()) @db.UnsignedInt
+  tag_id             Int                @db.UnsignedInt
+  category_id        Int
+  product_categories product_categories @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "r_tags_categories_product_categories_id_fk")
+  tags               tags               @relation(fields: [tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "r_tags_categories_tags_id_fk")
+
+  @@index([category_id], map: "r_tags_categories_product_categories_id_fk")
+  @@index([tag_id], map: "r_tags_categories_tags_id_fk")
+}
+
+model r_tags_objects {
+  id        Int     @id @default(autoincrement()) @db.UnsignedInt
+  tag_id    Int     @db.UnsignedInt
+  object_id Int
+  objects   objects @relation(fields: [object_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "r_tags_entities_objects_id_fk")
+  tags      tags    @relation(fields: [tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "r_tags_entities_tags_id_fk")
+
+  @@index([object_id], map: "r_tags_entities_objects_id_fk")
+  @@index([tag_id], map: "r_tags_entities_tags_id_fk")
+}
+
+model r_tags_product_types {
+  id              Int           @id @default(autoincrement()) @db.UnsignedInt
+  tag_id          Int           @db.UnsignedInt
+  product_type_id Int
+  product_types   product_types @relation(fields: [product_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "r_tags_product_types_product_types_id_fk")
+  tags            tags          @relation(fields: [tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "r_tags_product_types_tags_id_fk")
+
+  @@index([product_type_id], map: "r_tags_product_types_product_types_id_fk")
+  @@index([tag_id], map: "r_tags_product_types_tags_id_fk")
+}
+
+model r_tags_products {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  tag_id     Int      @db.UnsignedInt
+  product_id Int
+  products   products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "r_tags_products_products_id_fk")
+  tags       tags     @relation(fields: [tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "r_tags_products_tags_id_fk")
+
+  @@index([product_id], map: "r_tags_products_products_id_fk")
+  @@index([tag_id], map: "r_tags_products_tags_id_fk")
+}
+
+model r_tags_projects {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  tag_id     Int      @db.UnsignedInt
+  project_id Int      @db.UnsignedInt
+  projects   projects @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "r_tags_projects_projects_id_fk")
+  tags       tags     @relation(fields: [tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "r_tags_projects_tags_id_fk")
+
+  @@index([project_id], map: "r_tags_projects_projects_id_fk")
+  @@index([tag_id], map: "r_tags_projects_tags_id_fk")
+}
+
+model sections {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  number    String   @db.VarChar(45)
+  object_id Int
+  floors    floors[]
+  objects   objects  @relation(fields: [object_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_sections_to_objects")
+
+  @@index([object_id], map: "fk_sections_to_objects_idx")
+}
+
+model tags {
+  id                   Int                    @id @default(autoincrement()) @db.UnsignedInt
+  name                 String                 @db.VarChar(256)
+  price                Decimal                @default(0.00) @db.Decimal(12, 2)
+  r_product_tags       r_product_tags[]
+  r_tags_categories    r_tags_categories[]
+  r_tags_objects       r_tags_objects[]
+  r_tags_product_types r_tags_product_types[]
+  r_tags_products      r_tags_products[]
+  r_tags_projects      r_tags_projects[]
+}
+
+enum product_files_type {
+  EXPLICATION
+}

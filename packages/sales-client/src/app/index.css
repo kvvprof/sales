@@ -1,3 +1,4 @@
+/* stylelint-disable selector-class-pattern */
 
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
 @import url('react-toastify/dist/ReactToastify.css');
@@ -22,7 +23,8 @@
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+	height: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -66,6 +68,7 @@ form {
 }
 
 table {
+	border-collapse: collapse;
 	width: 100%;
 }
 
@@ -76,7 +79,7 @@ thead {
 
 th, td {
 	padding: 10px;
-	border-bottom: 1px solid var(--c-line-primary);
+	border-bottom: 1px solid var(--c-line-primary);	
 }
 
 tbody > tr:hover {

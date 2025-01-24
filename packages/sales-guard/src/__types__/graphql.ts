@@ -1,5 +1,4 @@
 /* eslint-disable */
-import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -27,42 +26,44 @@ export type Scalars = {
 
 export type ActualPayments = {
   __typename?: 'ActualPayments';
-  actual_payments: Array<BasicActualPayment>;
-  total_count: Scalars['NonNegativeInt']['output'];
+  actualPayments: Array<BasicActualPayment>;
+  totalCount: Scalars['NonNegativeInt']['output'];
 };
 
 export type Agencies = {
   __typename?: 'Agencies';
   agencies: Array<BasicAgency>;
-  total_count: Scalars['NonNegativeInt']['output'];
+  totalCount: Scalars['NonNegativeInt']['output'];
 };
 
 export type Agency = {
   __typename?: 'Agency';
   agency: BasicAgency;
-  agency_contracts?: Maybe<Array<BasicAgencyContract>>;
+  agencyContracts?: Maybe<Array<BasicAgencyContract>>;
 };
 
 export type AgencyContract = {
   __typename?: 'AgencyContract';
   agency: BasicAgency;
-  agency_contract_properties: BasicAgencyContract;
-  agency_contract_signatory?: Maybe<BasicAgencyContractSignatory>;
+  agencyContractProperties: BasicAgencyContract;
+  agencyContractSignatory?: Maybe<BasicAgencyContractSignatory>;
   entity: BasicEntity;
-  mip_agency_contract_properties?: Maybe<BasicMipAgencyContractProperties>;
+  mipAgencyContractProperties?: Maybe<BasicMipAgencyContractProperties>;
   object: BasicObject;
-  real_estate_agency_contract_properties?: Maybe<BasicRealEstateAgencyContractProperties>;
-  responsible_user?: Maybe<BasicUser>;
+  realEstateAgencyContractProperties?: Maybe<BasicRealEstateAgencyContractProperties>;
+  responsibleUser?: Maybe<BasicUser>;
 };
 
 export type AgencyContractClientContract = {
   __typename?: 'AgencyContractClientContract';
   agency: BasicAgency;
-  agency_contract: BasicAgencyContract;
+  agencyContract: BasicAgencyContract;
+  mipAgencyContractProperties?: Maybe<BasicMipAgencyContractProperties>;
+  realEstateAgencyContractProperties?: Maybe<BasicRealEstateAgencyContractProperties>;
 };
 
 export type AgencyContractCommissionInput = {
-  max_days: Scalars['NonNegativeInt']['input'];
+  maxDays: Scalars['NonNegativeInt']['input'];
   percent: Scalars['NonNegativeDecimal']['input'];
   threshold: Scalars['NonNegativeDecimal']['input'];
 };
@@ -72,6 +73,12 @@ export enum AgencyContractType {
   RealEstateAgencyContract = 'REAL_ESTATE_AGENCY_CONTRACT'
 }
 
+export type AgencyContractWithRealEstateAgencyProperties = {
+  __typename?: 'AgencyContractWithRealEstateAgencyProperties';
+  agencyContract: BasicAgencyContract;
+  realEstateAgencyContractProperties?: Maybe<BasicRealEstateAgencyContractProperties>;
+};
+
 export type BaseOptionsInput = {
   limit?: InputMaybe<Scalars['NonNegativeInt']['input']>;
   offset?: InputMaybe<Scalars['NonNegativeInt']['input']>;
@@ -80,6 +87,7 @@ export type BaseOptionsInput = {
 
 export type BasicActualPayment = {
   __typename?: 'BasicActualPayment';
+  clientContractId: Scalars['PositiveInt']['output'];
   date: Scalars['Date']['output'];
   id: Scalars['PositiveInt']['output'];
   payment: Scalars['Decimal']['output'];
@@ -87,7 +95,7 @@ export type BasicActualPayment = {
 
 export type BasicAgency = {
   __typename?: 'BasicAgency';
-  common_db_contractors_id: Scalars['PositiveInt']['output'];
+  commonDbContractorsId: Scalars['PositiveInt']['output'];
   id: Scalars['PositiveInt']['output'];
   inn?: Maybe<Scalars['NonEmptyString']['output']>;
   name: Scalars['NonEmptyString']['output'];
@@ -95,41 +103,41 @@ export type BasicAgency = {
 
 export type BasicAgencyContract = {
   __typename?: 'BasicAgencyContract';
-  agency_contract_type: AgencyContractType;
+  agencyContractType: AgencyContractType;
   date: Scalars['Date']['output'];
   id: Scalars['PositiveInt']['output'];
+  link?: Maybe<Scalars['NonEmptyString']['output']>;
   number: Scalars['NonEmptyString']['output'];
 };
 
 export type BasicAgencyContractCommission = {
   __typename?: 'BasicAgencyContractCommission';
-  max_days: Scalars['NonNegativeInt']['output'];
+  maxDays: Scalars['NonNegativeInt']['output'];
   percent: Scalars['NonNegativeDecimal']['output'];
   threshold: Scalars['NonNegativeDecimal']['output'];
 };
 
 export type BasicAgencyContractSignatory = {
   __typename?: 'BasicAgencyContractSignatory';
-  based_on: Scalars['NonEmptyString']['output'];
-  email: Scalars['NonEmptyString']['output'];
-  full_name: Scalars['NonEmptyString']['output'];
+  basedOn?: Maybe<Scalars['NonEmptyString']['output']>;
+  fullName: Scalars['NonEmptyString']['output'];
   id: Scalars['PositiveInt']['output'];
-  phone: Scalars['NonEmptyString']['output'];
-  title: Scalars['NonEmptyString']['output'];
+  title?: Maybe<Scalars['NonEmptyString']['output']>;
 };
 
 export type BasicBank = {
   __typename?: 'BasicBank';
   id: Scalars['PositiveInt']['output'];
+  isVisible: Scalars['Boolean']['output'];
   name: Scalars['NonEmptyString']['output'];
 };
 
 export type BasicClient = {
   __typename?: 'BasicClient';
   address?: Maybe<Scalars['NonEmptyString']['output']>;
-  client_category: ClientCategory;
+  clientCategory: ClientCategory;
   email?: Maybe<Scalars['NonEmptyString']['output']>;
-  full_name: Scalars['NonEmptyString']['output'];
+  fullName: Scalars['NonEmptyString']['output'];
   id: Scalars['PositiveInt']['output'];
   inn?: Maybe<Scalars['NonEmptyString']['output']>;
   phone?: Maybe<Scalars['NonEmptyString']['output']>;
@@ -137,18 +145,21 @@ export type BasicClient = {
 
 export type BasicClientContract = {
   __typename?: 'BasicClientContract';
-  client_contract_type: ClientContractType;
+  clientContractType: ClientContractType;
+  comment?: Maybe<Scalars['String']['output']>;
   date: Scalars['Date']['output'];
   id: Scalars['PositiveInt']['output'];
+  isRealEstateAgencyActDisabled?: Maybe<Scalars['Boolean']['output']>;
+  link?: Maybe<Scalars['String']['output']>;
   number: Scalars['NonEmptyString']['output'];
   price: Scalars['PositiveDecimal']['output'];
-  registration_date?: Maybe<Scalars['Date']['output']>;
+  registrationDate?: Maybe<Scalars['Date']['output']>;
 };
 
 export type BasicClientContractToClient = {
   __typename?: 'BasicClientContractToClient';
   client: BasicClient;
-  is_main: Scalars['Boolean']['output'];
+  isMain: Scalars['Boolean']['output'];
   share: Scalars['NonNegativeInt']['output'];
 };
 
@@ -159,8 +170,8 @@ export type BasicClientEntityProperties = {
 
 export type BasicClientIndividualMinorProperties = {
   __typename?: 'BasicClientIndividualMinorProperties';
-  birth_certificate?: Maybe<Scalars['NonEmptyString']['output']>;
-  client_passport?: Maybe<BasicClientPassport>;
+  birthCertificate?: Maybe<Scalars['NonEmptyString']['output']>;
+  clientPassport?: Maybe<BasicClientPassport>;
   dob?: Maybe<Scalars['Date']['output']>;
   representatives?: Maybe<Array<BasicClient>>;
   snils?: Maybe<Scalars['NonEmptyString']['output']>;
@@ -168,7 +179,7 @@ export type BasicClientIndividualMinorProperties = {
 
 export type BasicClientIndividualProperties = {
   __typename?: 'BasicClientIndividualProperties';
-  client_passport?: Maybe<BasicClientPassport>;
+  clientPassport?: Maybe<BasicClientPassport>;
   dob?: Maybe<Scalars['Date']['output']>;
   snils?: Maybe<Scalars['NonEmptyString']['output']>;
 };
@@ -178,8 +189,8 @@ export type BasicClientPassport = {
   code?: Maybe<Scalars['NonEmptyString']['output']>;
   issued?: Maybe<Scalars['NonEmptyString']['output']>;
   number?: Maybe<Scalars['NonEmptyString']['output']>;
-  place_of_birth?: Maybe<Scalars['NonEmptyString']['output']>;
-  registration_address?: Maybe<Scalars['NonEmptyString']['output']>;
+  placeOfBirth?: Maybe<Scalars['NonEmptyString']['output']>;
+  registrationAddress?: Maybe<Scalars['NonEmptyString']['output']>;
 };
 
 export type BasicCommonAccount = {
@@ -193,68 +204,96 @@ export type BasicCommonBank = {
   __typename?: 'BasicCommonBank';
   bik?: Maybe<Scalars['String']['output']>;
   city?: Maybe<Scalars['String']['output']>;
-  correspondent_number?: Maybe<Scalars['String']['output']>;
+  correspondentNumber?: Maybe<Scalars['String']['output']>;
   id: Scalars['PositiveInt']['output'];
   name: Scalars['String']['output'];
 };
 
 export type BasicCommonContractor = {
   __typename?: 'BasicCommonContractor';
-  actual_address?: Maybe<Scalars['String']['output']>;
+  actualAddress?: Maybe<Scalars['String']['output']>;
   contacts?: Maybe<Scalars['String']['output']>;
   id: Scalars['PositiveInt']['output'];
   inn?: Maybe<Scalars['String']['output']>;
-  is_active?: Maybe<Scalars['Boolean']['output']>;
+  isActive?: Maybe<Scalars['Boolean']['output']>;
   kpp?: Maybe<Scalars['String']['output']>;
-  legal_address?: Maybe<Scalars['String']['output']>;
+  legalAddress?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   ogrn?: Maybe<Scalars['String']['output']>;
   phone?: Maybe<Scalars['String']['output']>;
-  propogated_at?: Maybe<Scalars['DateTime']['output']>;
-  reconciliation_link?: Maybe<Scalars['String']['output']>;
-  short_name?: Maybe<Scalars['String']['output']>;
+  propogatedAt?: Maybe<Scalars['DateTime']['output']>;
+  reconciliationLink?: Maybe<Scalars['String']['output']>;
+  shortName?: Maybe<Scalars['String']['output']>;
 };
 
 export type BasicCommonEntity = {
   __typename?: 'BasicCommonEntity';
-  db_name: Scalars['String']['output'];
-  display_name: Scalars['String']['output'];
+  dbName: Scalars['String']['output'];
+  displayName: Scalars['String']['output'];
   id: Scalars['PositiveInt']['output'];
   inn: Scalars['String']['output'];
   kpp: Scalars['String']['output'];
   name: Scalars['String']['output'];
   ogrn: Scalars['String']['output'];
-  short_name: Scalars['String']['output'];
-  str_id: Scalars['String']['output'];
+  shortName: Scalars['String']['output'];
+  strId: Scalars['String']['output'];
 };
 
 export type BasicDduClientContractProperties = {
-  __typename?: 'BasicDDUClientContractProperties';
-  ddu_link?: Maybe<Scalars['NonEmptyString']['output']>;
-  escrow_account_number?: Maybe<Scalars['NonEmptyString']['output']>;
-  escrow_account_opening_date?: Maybe<Scalars['Date']['output']>;
-  escrow_period?: Maybe<Scalars['Date']['output']>;
+  __typename?: 'BasicDduClientContractProperties';
+  dduLink?: Maybe<Scalars['NonEmptyString']['output']>;
+  escrowAccountNumber?: Maybe<Scalars['NonEmptyString']['output']>;
+  escrowAccountOpeningDate?: Maybe<Scalars['Date']['output']>;
+  escrowPeriod?: Maybe<Scalars['Date']['output']>;
   id: Scalars['PositiveInt']['output'];
-  is_escrow_discount?: Maybe<Scalars['Boolean']['output']>;
-  return_account?: Maybe<Scalars['NonEmptyString']['output']>;
+  isEscrowDiscount?: Maybe<Scalars['Boolean']['output']>;
+  returnAccount?: Maybe<Scalars['NonEmptyString']['output']>;
+};
+
+export type BasicDkpClientContractProperties = {
+  __typename?: 'BasicDkpClientContractProperties';
+  dkpLink?: Maybe<Scalars['NonEmptyString']['output']>;
+  id: Scalars['PositiveInt']['output'];
 };
 
 export type BasicEntity = {
   __typename?: 'BasicEntity';
-  common_db_entities_id: Scalars['PositiveInt']['output'];
+  commonDbEntitiesId: Scalars['PositiveInt']['output'];
   id: Scalars['PositiveInt']['output'];
   name: Scalars['NonEmptyString']['output'];
   website?: Maybe<Scalars['NonEmptyString']['output']>;
 };
 
+export type BasicEscrowAccountHistory = {
+  __typename?: 'BasicEscrowAccountHistory';
+  builderInn: Scalars['String']['output'];
+  closingDate?: Maybe<Scalars['Date']['output']>;
+  dateOfTransaction: Scalars['Date']['output'];
+  dduDate: Scalars['Date']['output'];
+  dduNumber: Scalars['String']['output'];
+  depositedAmount: Scalars['Decimal']['output'];
+  depositor: Scalars['String']['output'];
+  depositorInn?: Maybe<Scalars['String']['output']>;
+  expirationDate: Scalars['Date']['output'];
+  id: Scalars['PositiveInt']['output'];
+  incomingBalance: Scalars['Decimal']['output'];
+  loanAgreementDate?: Maybe<Scalars['Date']['output']>;
+  loanAgreementNumber?: Maybe<Scalars['String']['output']>;
+  number: Scalars['String']['output'];
+  openingDate: Scalars['Date']['output'];
+  outgoingBalance: Scalars['Decimal']['output'];
+  status: EscrowAccountStatus;
+  transactionAmount: Scalars['Decimal']['output'];
+};
+
 export type BasicMipAgencyContractProperties = {
-  __typename?: 'BasicMIPAgencyContractProperties';
-  agency_contract_commission: BasicAgencyContractCommission;
+  __typename?: 'BasicMipAgencyContractProperties';
+  agencyContractCommission: BasicAgencyContractCommission;
 };
 
 export type BasicObject = {
   __typename?: 'BasicObject';
-  common_db_objects_id: Scalars['PositiveInt']['output'];
+  commonDbObjectsId: Scalars['PositiveInt']['output'];
   id: Scalars['PositiveInt']['output'];
   name: Scalars['NonEmptyString']['output'];
 };
@@ -276,7 +315,7 @@ export type BasicPricingProduct = {
   area: Scalars['NonNegativeDecimal']['output'];
   id: Scalars['PositiveInt']['output'];
   number: Scalars['NonEmptyString']['output'];
-  one_gt_id?: Maybe<Scalars['PositiveInt']['output']>;
+  oneGtId?: Maybe<Scalars['PositiveInt']['output']>;
   price: Scalars['NonNegativeDecimal']['output'];
 };
 
@@ -296,19 +335,31 @@ export type BasicProduct = {
   __typename?: 'BasicProduct';
   id: Scalars['PositiveInt']['output'];
   number: Scalars['NonEmptyString']['output'];
-  pricing_products_id: Scalars['PositiveInt']['output'];
-  product_category: ProductCategory;
+  pricingProductsId: Scalars['PositiveInt']['output'];
+  productCategory: ProductCategory;
+};
+
+export type BasicRealEstateAgencyAct = {
+  __typename?: 'BasicRealEstateAgencyAct';
+  amount: Scalars['NonNegativeDecimal']['output'];
+  date: Scalars['Date']['output'];
+  id: Scalars['PositiveInt']['output'];
+  link?: Maybe<Scalars['NonEmptyString']['output']>;
+  note?: Maybe<Scalars['NonEmptyString']['output']>;
+  number: Scalars['NonEmptyString']['output'];
+  retention?: Maybe<Scalars['NonNegativeDecimal']['output']>;
 };
 
 export type BasicRealEstateAgencyContractProperties = {
   __typename?: 'BasicRealEstateAgencyContractProperties';
-  agency_contract_commission: BasicAgencyContractCommission;
+  agencyContractCommission: BasicAgencyContractCommission;
 };
 
 export type BasicRealEstateAgent = {
   __typename?: 'BasicRealEstateAgent';
-  full_name: Scalars['NonEmptyString']['output'];
+  fullName: Scalars['NonEmptyString']['output'];
   id: Scalars['PositiveInt']['output'];
+  oneGtId?: Maybe<Scalars['PositiveInt']['output']>;
   phone?: Maybe<Scalars['NonEmptyString']['output']>;
 };
 
@@ -317,25 +368,50 @@ export type BasicScheduledPayment = {
   date: Scalars['Date']['output'];
   id: Scalars['PositiveInt']['output'];
   payment: Scalars['PositiveDecimal']['output'];
-  scheduled_payment_type: ScheduledPaymentType;
+  scheduledPaymentType: ScheduledPaymentType;
+};
+
+export type BasicSubsidy = {
+  __typename?: 'BasicSubsidy';
+  id: Scalars['PositiveInt']['output'];
+  isVisible: Scalars['Boolean']['output'];
+  name: Scalars['NonEmptyString']['output'];
 };
 
 export type BasicUser = {
   __typename?: 'BasicUser';
   email: Scalars['NonEmptyString']['output'];
-  full_name: Scalars['NonEmptyString']['output'];
+  fullName: Scalars['NonEmptyString']['output'];
   id: Scalars['PositiveInt']['output'];
-  is_manager: Scalars['Boolean']['output'];
+  isManager: Scalars['Boolean']['output'];
+  isStaff: Scalars['Boolean']['output'];
   phone?: Maybe<Scalars['NonEmptyString']['output']>;
-  user_role: UserRole;
+  userRole: UserRole;
+};
+
+export type CandidateType = {
+  __typename?: 'CandidateType';
+  agencyContractId: Scalars['PositiveInt']['output'];
+  agencyContractNumber: Scalars['NonEmptyString']['output'];
+  agencyContractPercent: Scalars['NonNegativeDecimal']['output'];
+  agencyContractThreshold: Scalars['NonNegativeDecimal']['output'];
+  agencyId: Scalars['PositiveInt']['output'];
+  agencyName: Scalars['NonEmptyString']['output'];
+  clientContractId: Scalars['PositiveInt']['output'];
+  clientContractNumber: Scalars['NonEmptyString']['output'];
+  clientContractPrice: Scalars['PositiveDecimal']['output'];
+  clientContractType: ClientContractType;
+  payAmount: Scalars['NonNegativeDecimal']['output'];
+  paymentPercentage: Scalars['NonNegativeDecimal']['output'];
+  transactionAmount: Scalars['NonNegativeDecimal']['output'];
 };
 
 export type Client = {
   __typename?: 'Client';
-  client_entity_properties?: Maybe<BasicClientEntityProperties>;
-  client_individual_minor_properties?: Maybe<BasicClientIndividualMinorProperties>;
-  client_individual_properties?: Maybe<BasicClientIndividualProperties>;
-  client_properties: BasicClient;
+  clientEntityProperties?: Maybe<BasicClientEntityProperties>;
+  clientIndividualMinorProperties?: Maybe<BasicClientIndividualMinorProperties>;
+  clientIndividualProperties?: Maybe<BasicClientIndividualProperties>;
+  clientProperties: BasicClient;
 };
 
 export enum ClientCategory {
@@ -346,20 +422,22 @@ export enum ClientCategory {
 
 export type ClientContract = {
   __typename?: 'ClientContract';
-  agency_contracts?: Maybe<Array<Maybe<AgencyContractClientContract>>>;
+  agencyContracts?: Maybe<Array<Maybe<AgencyContractClientContract>>>;
   bank?: Maybe<BasicBank>;
-  client_contract_properties: BasicClientContract;
+  clientContractProperties: BasicClientContract;
   clients: Array<BasicClientContractToClient>;
-  ddu_client_contract_properties?: Maybe<BasicDduClientContractProperties>;
+  dduClientContractProperties?: Maybe<BasicDduClientContractProperties>;
+  dkpClientContractProperties?: Maybe<BasicDkpClientContractProperties>;
   manager?: Maybe<BasicUser>;
   object: BasicObject;
   product: Product;
-  real_estate_agent?: Maybe<BasicRealEstateAgent>;
+  realEstateAgent?: Maybe<BasicRealEstateAgent>;
+  subsidy?: Maybe<BasicSubsidy>;
 };
 
 export type ClientContractToClientInput = {
-  client_id: Scalars['PositiveInt']['input'];
-  is_main: Scalars['Boolean']['input'];
+  clientId: Scalars['PositiveInt']['input'];
+  isMain: Scalars['Boolean']['input'];
   share: Scalars['NonNegativeInt']['input'];
 };
 
@@ -368,10 +446,22 @@ export enum ClientContractType {
   Dkp = 'DKP'
 }
 
+export type ClientContractWithObject = {
+  __typename?: 'ClientContractWithObject';
+  clientContract: BasicClientContract;
+  object: BasicObject;
+};
+
 export type ClientContracts = {
   __typename?: 'ClientContracts';
-  client_contracts: Array<ClientContract>;
-  total_count: Scalars['NonNegativeInt']['output'];
+  clientContracts: Array<ClientContract>;
+  totalCount: Scalars['NonNegativeInt']['output'];
+};
+
+export type ClientContractsWithTransactionAmount = {
+  __typename?: 'ClientContractsWithTransactionAmount';
+  clientContract: ClientContract;
+  transactionAmount: Scalars['PositiveDecimal']['output'];
 };
 
 export type ClientEntityPropertiesInput = {
@@ -379,15 +469,15 @@ export type ClientEntityPropertiesInput = {
 };
 
 export type ClientIndividualMinorPropertiesInput = {
-  birth_certificate?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  client_passport?: InputMaybe<ClientPassportPropertiesInput>;
+  birthCertificate?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  clientPassport?: InputMaybe<ClientPassportPropertiesInput>;
   dob?: InputMaybe<Scalars['Date']['input']>;
-  representative_ids?: InputMaybe<Array<Scalars['PositiveInt']['input']>>;
+  representativeIds?: InputMaybe<Array<Scalars['PositiveInt']['input']>>;
   snils?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
 export type ClientIndividualPropertiesInput = {
-  client_passport?: InputMaybe<ClientPassportPropertiesInput>;
+  clientPassport?: InputMaybe<ClientPassportPropertiesInput>;
   dob?: InputMaybe<Scalars['Date']['input']>;
   snils?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
@@ -396,14 +486,14 @@ export type ClientPassportPropertiesInput = {
   code?: InputMaybe<Scalars['NonEmptyString']['input']>;
   issued?: InputMaybe<Scalars['NonEmptyString']['input']>;
   number?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  place_of_birth?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  registration_address?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  placeOfBirth?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  registrationAddress?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
 export type Clients = {
   __typename?: 'Clients';
   clients: Array<Client>;
-  total_count: Scalars['NonNegativeInt']['output'];
+  totalCount: Scalars['NonNegativeInt']['output'];
 };
 
 export type CommonContractor = {
@@ -415,121 +505,176 @@ export type CommonContractor = {
 export type CommonContractors = {
   __typename?: 'CommonContractors';
   contractors: Array<CommonContractor>;
-  total_count: Scalars['PositiveInt']['output'];
+  totalCount: Scalars['PositiveInt']['output'];
 };
 
 export type CommonEntities = {
   __typename?: 'CommonEntities';
   entities: Array<BasicCommonEntity>;
-  total_count: Scalars['PositiveInt']['output'];
+  totalCount: Scalars['PositiveInt']['output'];
 };
 
 export type CreateActualPaymentInput = {
-  client_contract_id: Scalars['PositiveInt']['input'];
+  clientContractId: Scalars['PositiveInt']['input'];
   date: Scalars['Date']['input'];
   payment: Scalars['Decimal']['input'];
 };
 
 export type CreateAgencyContractInput = {
-  agency_contract_properties: CreateAgencyContractPropertiesInput;
-  mip_agency_contract_properties?: InputMaybe<MipAgencyContractPropertiesInput>;
-  real_estate_agency_contract_properties?: InputMaybe<RealEstateAgencyContractPropertiesInput>;
+  agencyContractProperties: CreateAgencyContractPropertiesInput;
+  mipAgencyContractProperties?: InputMaybe<MipAgencyContractPropertiesInput>;
+  realEstateAgencyContractProperties?: InputMaybe<RealEstateAgencyContractPropertiesInput>;
 };
 
 export type CreateAgencyContractPropertiesInput = {
-  agency_contract_signatory_id?: InputMaybe<Scalars['PositiveInt']['input']>;
-  agency_contract_type: AgencyContractType;
-  agency_id: Scalars['PositiveInt']['input'];
-  entity_id: Scalars['PositiveInt']['input'];
-  object_id: Scalars['PositiveInt']['input'];
-  responsible_user_id: Scalars['PositiveInt']['input'];
+  agencyContractSignatoryId?: InputMaybe<Scalars['PositiveInt']['input']>;
+  agencyContractType: AgencyContractType;
+  agencyId: Scalars['PositiveInt']['input'];
+  date: Scalars['Date']['input'];
+  entityId: Scalars['PositiveInt']['input'];
+  objectId: Scalars['PositiveInt']['input'];
+  responsibleUserId: Scalars['PositiveInt']['input'];
 };
 
 export type CreateAgencyContractSignatoryInput = {
-  agency_id: Scalars['PositiveInt']['input'];
-  based_on: Scalars['NonEmptyString']['input'];
-  email: Scalars['NonEmptyString']['input'];
-  full_name: Scalars['NonEmptyString']['input'];
-  phone: Scalars['NonEmptyString']['input'];
-  title: Scalars['NonEmptyString']['input'];
+  agencyId: Scalars['PositiveInt']['input'];
+  basedOn?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  fullName: Scalars['NonEmptyString']['input'];
+  title?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
 export type CreateAgencyInput = {
-  common_db_contractors_id: Scalars['PositiveInt']['input'];
+  commonDbContractorsId: Scalars['PositiveInt']['input'];
   inn?: InputMaybe<Scalars['NonEmptyString']['input']>;
   name: Scalars['NonEmptyString']['input'];
 };
 
+export type CreateAssignmentInput = {
+  clientContractId: Scalars['PositiveInt']['input'];
+  clientIdsFrom: Array<Scalars['PositiveInt']['input']>;
+  clientIdsTo: Array<Scalars['PositiveInt']['input']>;
+};
+
+export type CreateBankInput = {
+  isVisible: Scalars['Boolean']['input'];
+  name: Scalars['NonEmptyString']['input'];
+};
+
 export type CreateClientContractInput = {
-  client_contract_properties: CreateClientContractPropertiesInput;
-  ddu_client_contract_properties?: InputMaybe<DduClientContractPropertiesInput>;
+  clientContractProperties: CreateClientContractPropertiesInput;
+  dduClientContractProperties?: InputMaybe<DduClientContractPropertiesInput>;
+  dkpClientContractProperties?: InputMaybe<DkpClientContractPropertiesInput>;
 };
 
 export type CreateClientContractPropertiesInput = {
-  agency_contract_ids?: InputMaybe<Array<Scalars['PositiveInt']['input']>>;
-  bank_id?: InputMaybe<Scalars['PositiveInt']['input']>;
-  client_contract_type: ClientContractType;
+  agencyContractIds?: InputMaybe<Array<Scalars['PositiveInt']['input']>>;
+  bankId?: InputMaybe<Scalars['PositiveInt']['input']>;
+  clientContractType: ClientContractType;
   clients: Array<ClientContractToClientInput>;
+  comment?: InputMaybe<Scalars['String']['input']>;
   date: Scalars['Date']['input'];
-  manager_id?: InputMaybe<Scalars['PositiveInt']['input']>;
+  managerId?: InputMaybe<Scalars['PositiveInt']['input']>;
   number: Scalars['NonEmptyString']['input'];
   price: Scalars['PositiveDecimal']['input'];
-  product_id: Scalars['PositiveInt']['input'];
-  real_estate_agent_id?: InputMaybe<Scalars['PositiveInt']['input']>;
-  registration_date?: InputMaybe<Scalars['Date']['input']>;
+  productId: Scalars['PositiveInt']['input'];
+  realEstateAgentId?: InputMaybe<Scalars['PositiveInt']['input']>;
+  registrationDate?: InputMaybe<Scalars['Date']['input']>;
+  subsidyId?: InputMaybe<Scalars['PositiveInt']['input']>;
 };
 
 export type CreateClientInput = {
-  client_entity_properties?: InputMaybe<ClientEntityPropertiesInput>;
-  client_individual_minor_properties?: InputMaybe<ClientIndividualMinorPropertiesInput>;
-  client_individual_properties?: InputMaybe<ClientIndividualPropertiesInput>;
-  client_properties: CreateClientPropertiesInput;
+  clientEntityProperties?: InputMaybe<ClientEntityPropertiesInput>;
+  clientIndividualMinorProperties?: InputMaybe<ClientIndividualMinorPropertiesInput>;
+  clientIndividualProperties?: InputMaybe<ClientIndividualPropertiesInput>;
+  clientProperties: CreateClientPropertiesInput;
 };
 
 export type CreateClientPropertiesInput = {
   address?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  client_category: ClientCategory;
+  clientCategory: ClientCategory;
   email?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  full_name: Scalars['NonEmptyString']['input'];
+  fullName: Scalars['NonEmptyString']['input'];
   inn?: InputMaybe<Scalars['NonEmptyString']['input']>;
   phone?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
 export type CreateProductInput = {
   number: Scalars['NonEmptyString']['input'];
-  object_id: Scalars['PositiveInt']['input'];
-  pricing_products_id: Scalars['PositiveInt']['input'];
-  product_category: ProductCategory;
+  objectId: Scalars['PositiveInt']['input'];
+  pricingProductsId: Scalars['PositiveInt']['input'];
+  productCategory: ProductCategory;
+};
+
+export type CreateRealEstateAgencyActInput = {
+  agencyContractId: Scalars['PositiveInt']['input'];
+  agencyId: Scalars['PositiveInt']['input'];
+  amount: Scalars['NonNegativeDecimal']['input'];
+  clientContractId: Scalars['PositiveInt']['input'];
+  date: Scalars['Date']['input'];
+  note?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  number: Scalars['NonEmptyString']['input'];
+  retention?: InputMaybe<Scalars['NonNegativeDecimal']['input']>;
 };
 
 export type CreateRealEstateAgentInput = {
-  agency_ids: Array<Scalars['PositiveInt']['input']>;
-  full_name: Scalars['NonEmptyString']['input'];
+  agencyIds: Array<Scalars['PositiveInt']['input']>;
+  fullName: Scalars['NonEmptyString']['input'];
+  oneGtId?: InputMaybe<Scalars['PositiveInt']['input']>;
   phone?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
 export type CreateScheduledPaymentInput = {
-  client_contract_id: Scalars['PositiveInt']['input'];
+  clientContractId: Scalars['PositiveInt']['input'];
   date: Scalars['Date']['input'];
   payment: Scalars['PositiveDecimal']['input'];
-  scheduled_payment_type: ScheduledPaymentType;
+  scheduledPaymentType: ScheduledPaymentType;
+};
+
+export type CreateSubsidyInput = {
+  isVisible: Scalars['Boolean']['input'];
+  name: Scalars['NonEmptyString']['input'];
 };
 
 export type CreateUserInput = {
   email: Scalars['NonEmptyString']['input'];
-  full_name: Scalars['NonEmptyString']['input'];
-  is_manager: Scalars['Boolean']['input'];
+  fullName: Scalars['NonEmptyString']['input'];
+  isManager: Scalars['Boolean']['input'];
+  isStaff: Scalars['Boolean']['input'];
   phone?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  user_role: UserRole;
+  userRole: UserRole;
 };
 
 export type DduClientContractPropertiesInput = {
-  ddu_link?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  escrow_account_number?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  escrow_account_opening_date?: InputMaybe<Scalars['Date']['input']>;
-  escrow_period?: InputMaybe<Scalars['Date']['input']>;
-  is_escrow_discount?: InputMaybe<Scalars['Boolean']['input']>;
-  return_account?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  dduLink?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  escrowAccountNumber?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  escrowAccountOpeningDate?: InputMaybe<Scalars['Date']['input']>;
+  escrowPeriod?: InputMaybe<Scalars['Date']['input']>;
+  isEscrowDiscount?: InputMaybe<Scalars['Boolean']['input']>;
+  returnAccount?: InputMaybe<Scalars['NonEmptyString']['input']>;
+};
+
+export type DeleteActualPaymentInput = {
+  id: Scalars['PositiveInt']['input'];
+};
+
+export type DeleteBankInput = {
+  id: Scalars['PositiveInt']['input'];
+};
+
+export type DeleteScheduledPaymentInput = {
+  id: Scalars['PositiveInt']['input'];
+};
+
+export type DeleteSubsidyInput = {
+  id: Scalars['PositiveInt']['input'];
+};
+
+export type DeleteUserInput = {
+  id: Scalars['PositiveInt']['input'];
+};
+
+export type DkpClientContractPropertiesInput = {
+  dkpLink?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
 export type Entity = {
@@ -538,8 +683,39 @@ export type Entity = {
   objects: Array<BasicObject>;
 };
 
+export type EscrowAccountHistoryInput = {
+  builderInn: Scalars['String']['input'];
+  closingDate?: InputMaybe<Scalars['Date']['input']>;
+  dateOfTransaction: Scalars['Date']['input'];
+  dduDate: Scalars['Date']['input'];
+  dduNumber: Scalars['String']['input'];
+  depositedAmount: Scalars['Decimal']['input'];
+  depositor: Scalars['String']['input'];
+  depositorInn?: InputMaybe<Scalars['String']['input']>;
+  expirationDate: Scalars['Date']['input'];
+  incomingBalance: Scalars['Decimal']['input'];
+  loanAgreementDate?: InputMaybe<Scalars['Date']['input']>;
+  loanAgreementNumber?: InputMaybe<Scalars['String']['input']>;
+  number: Scalars['String']['input'];
+  openingDate: Scalars['Date']['input'];
+  outgoingBalance: Scalars['Decimal']['input'];
+  status: EscrowAccountStatus;
+  transactionAmount: Scalars['Decimal']['input'];
+};
+
+export enum EscrowAccountStatus {
+  Closed = 'CLOSED',
+  Opened = 'OPENED'
+}
+
+export type EscrowAccountsHistory = {
+  __typename?: 'EscrowAccountsHistory';
+  escrowAccountsHistory: Array<BasicEscrowAccountHistory>;
+  totalCount: Scalars['NonNegativeInt']['output'];
+};
+
 export type GetActualPaymentsInput = {
-  client_contract_id: Scalars['PositiveInt']['input'];
+  clientContractId: Scalars['PositiveInt']['input'];
   options?: InputMaybe<BasicOptionsInput>;
 };
 
@@ -552,12 +728,12 @@ export type GetAgencyContractInput = {
 };
 
 export type GetAgencyContractSignatoriesInput = {
-  agency_id: Scalars['PositiveInt']['input'];
+  agencyId: Scalars['PositiveInt']['input'];
 };
 
 export type GetAgencyContractsInput = {
-  agency_id: Scalars['PositiveInt']['input'];
-  object_id?: InputMaybe<Scalars['PositiveInt']['input']>;
+  agencyId: Scalars['PositiveInt']['input'];
+  objectId?: InputMaybe<Scalars['PositiveInt']['input']>;
 };
 
 export type GetAgencyInput = {
@@ -573,7 +749,7 @@ export type GetClientContractsByIdsInput = {
 };
 
 export type GetClientContractsInput = {
-  object_id?: InputMaybe<Scalars['PositiveInt']['input']>;
+  objectId?: InputMaybe<Scalars['PositiveInt']['input']>;
   options?: InputMaybe<BasicOptionsInput>;
 };
 
@@ -601,6 +777,14 @@ export type GetCommonEntityInput = {
   id: Scalars['PositiveInt']['input'];
 };
 
+export type GetEscrowAccountsHistoryByDduNumberInput = {
+  dduNumber: Scalars['NonEmptyString']['input'];
+};
+
+export type GetEscrowAccountsHistoryInput = {
+  options?: InputMaybe<BasicOptionsInput>;
+};
+
 export type GetObjectInput = {
   id: Scalars['PositiveInt']['input'];
 };
@@ -610,8 +794,16 @@ export type GetPricingProductInput = {
 };
 
 export type GetPricingProductsInput = {
-  object_id: Scalars['PositiveInt']['input'];
+  objectId: Scalars['PositiveInt']['input'];
   options?: InputMaybe<BaseOptionsInput>;
+};
+
+export type GetRealEstateAgencyActInput = {
+  id: Scalars['PositiveInt']['input'];
+};
+
+export type GetRealEstateAgencyActsInput = {
+  options?: InputMaybe<BasicOptionsInput>;
 };
 
 export type GetRealEstateAgentInput = {
@@ -623,35 +815,62 @@ export type GetRealEstateAgentsInput = {
 };
 
 export type GetScheduledPaymentsInput = {
-  client_contract_id: Scalars['PositiveInt']['input'];
+  clientContractId: Scalars['PositiveInt']['input'];
   options?: InputMaybe<BasicOptionsInput>;
 };
 
+export type IsDeleted = {
+  __typename?: 'IsDeleted';
+  isDeleted: Scalars['Boolean']['output'];
+};
+
 export type MipAgencyContractPropertiesInput = {
-  agency_contract_commission: AgencyContractCommissionInput;
+  agencyContractCommission: AgencyContractCommissionInput;
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
   createActualPayment: BasicActualPayment;
+  createActualPayments: Scalars['Boolean']['output'];
   createAgency: BasicAgency;
   createAgencyContract: BasicAgencyContract;
   createAgencyContractSignatory: BasicAgencyContractSignatory;
+  createAssignment: Scalars['Boolean']['output'];
+  createBank: BasicBank;
   createClient: BasicClient;
   createClientContract: BasicClientContract;
+  createEscrowAccountsHistory: Scalars['Boolean']['output'];
   createProduct: Product;
+  createRealEstateAgencyAct: BasicRealEstateAgencyAct;
   createRealEstateAgent: BasicRealEstateAgent;
   createScheduledPayment: BasicScheduledPayment;
+  createScheduledPayments: Scalars['Boolean']['output'];
+  createStaff: BasicUser;
+  createSubsidy: BasicSubsidy;
   createUser: BasicUser;
+  deleteActualPayment: IsDeleted;
+  deleteBank: Scalars['Boolean']['output'];
+  deleteScheduledPayment: IsDeleted;
+  deleteSubsidy: Scalars['Boolean']['output'];
+  deleteUser: Scalars['Boolean']['output'];
   updateAgencyContract: BasicAgencyContract;
+  updateBank: BasicBank;
   updateClient: BasicClient;
   updateClientContract: BasicClientContract;
+  updateRealEstateAgencyAct: BasicRealEstateAgencyAct;
   updateRealEstateAgent: BasicRealEstateAgent;
+  updateSubsidy: BasicSubsidy;
+  updateUser: BasicUser;
 };
 
 
 export type MutationCreateActualPaymentArgs = {
   input: CreateActualPaymentInput;
+};
+
+
+export type MutationCreateActualPaymentsArgs = {
+  input: Array<CreateActualPaymentInput>;
 };
 
 
@@ -670,6 +889,16 @@ export type MutationCreateAgencyContractSignatoryArgs = {
 };
 
 
+export type MutationCreateAssignmentArgs = {
+  input: CreateAssignmentInput;
+};
+
+
+export type MutationCreateBankArgs = {
+  input: CreateBankInput;
+};
+
+
 export type MutationCreateClientArgs = {
   input: CreateClientInput;
 };
@@ -680,8 +909,18 @@ export type MutationCreateClientContractArgs = {
 };
 
 
+export type MutationCreateEscrowAccountsHistoryArgs = {
+  input: Array<EscrowAccountHistoryInput>;
+};
+
+
 export type MutationCreateProductArgs = {
   input: CreateProductInput;
+};
+
+
+export type MutationCreateRealEstateAgencyActArgs = {
+  input: CreateRealEstateAgencyActInput;
 };
 
 
@@ -695,13 +934,58 @@ export type MutationCreateScheduledPaymentArgs = {
 };
 
 
+export type MutationCreateScheduledPaymentsArgs = {
+  input: Array<CreateScheduledPaymentInput>;
+};
+
+
+export type MutationCreateStaffArgs = {
+  input: CreateUserInput;
+};
+
+
+export type MutationCreateSubsidyArgs = {
+  input: CreateSubsidyInput;
+};
+
+
 export type MutationCreateUserArgs = {
   input: CreateUserInput;
 };
 
 
+export type MutationDeleteActualPaymentArgs = {
+  input: DeleteActualPaymentInput;
+};
+
+
+export type MutationDeleteBankArgs = {
+  input: DeleteBankInput;
+};
+
+
+export type MutationDeleteScheduledPaymentArgs = {
+  input: DeleteScheduledPaymentInput;
+};
+
+
+export type MutationDeleteSubsidyArgs = {
+  input: DeleteSubsidyInput;
+};
+
+
+export type MutationDeleteUserArgs = {
+  input: DeleteUserInput;
+};
+
+
 export type MutationUpdateAgencyContractArgs = {
   input: UpdateAgencyContractInput;
+};
+
+
+export type MutationUpdateBankArgs = {
+  input: UpdateBankInput;
 };
 
 
@@ -715,8 +999,23 @@ export type MutationUpdateClientContractArgs = {
 };
 
 
+export type MutationUpdateRealEstateAgencyActArgs = {
+  input: UpdateRealEstateAgencyActInput;
+};
+
+
 export type MutationUpdateRealEstateAgentArgs = {
   input: UpdateRealEstateAgentInput;
+};
+
+
+export type MutationUpdateSubsidyArgs = {
+  input: UpdateSubsidyInput;
+};
+
+
+export type MutationUpdateUserArgs = {
+  input: UpdateUserInput;
 };
 
 export type PricingProduct = {
@@ -724,13 +1023,13 @@ export type PricingProduct = {
   category: BasicPricingProductCategory;
   object: BasicPricingObject;
   product: BasicPricingProduct;
-  product_type?: Maybe<BasicPricingProductType>;
+  productType?: Maybe<BasicPricingProductType>;
 };
 
 export type PricingProducts = {
   __typename?: 'PricingProducts';
   products: Array<PricingProduct>;
-  total_count: Scalars['PositiveInt']['output'];
+  totalCount: Scalars['PositiveInt']['output'];
 };
 
 export type Product = {
@@ -741,10 +1040,10 @@ export type Product = {
 
 export enum ProductCategory {
   Apartment = 'APARTMENT',
+  Flat = 'FLAT',
   Office = 'OFFICE',
-  Pantry = 'PANTRY',
-  Parking = 'PARKING',
-  ParkingSpace = 'PARKING_SPACE'
+  ParkingSpace = 'PARKING_SPACE',
+  StorageRoom = 'STORAGE_ROOM'
 }
 
 export type Query = {
@@ -766,13 +1065,19 @@ export type Query = {
   getCommonEntities: CommonEntities;
   getCommonEntity: BasicCommonEntity;
   getEntities: Array<Entity>;
+  getEscrowAccountsHistory: EscrowAccountsHistory;
+  getEscrowAccountsHistoryByDduNumber: Array<BasicEscrowAccountHistory>;
   getObject: BasicObject;
   getObjects: Array<BasicObject>;
   getPricingProduct: PricingProduct;
   getPricingProducts: PricingProducts;
+  getRealEstateAgencyAct: RealEstateAgencyAct;
+  getRealEstateAgencyActCandidates: Array<CandidateType>;
+  getRealEstateAgencyActs: RealEstateAgencyActs;
   getRealEstateAgent: RealEstateAgent;
   getRealEstateAgents: RealEstateAgents;
   getScheduledPayments: ScheduledPayments;
+  getSubsidies: Array<BasicSubsidy>;
   getUsers: Array<BasicUser>;
 };
 
@@ -852,6 +1157,16 @@ export type QueryGetCommonEntityArgs = {
 };
 
 
+export type QueryGetEscrowAccountsHistoryArgs = {
+  input?: InputMaybe<GetEscrowAccountsHistoryInput>;
+};
+
+
+export type QueryGetEscrowAccountsHistoryByDduNumberArgs = {
+  input: GetEscrowAccountsHistoryByDduNumberInput;
+};
+
+
 export type QueryGetObjectArgs = {
   input: GetObjectInput;
 };
@@ -864,6 +1179,16 @@ export type QueryGetPricingProductArgs = {
 
 export type QueryGetPricingProductsArgs = {
   input: GetPricingProductsInput;
+};
+
+
+export type QueryGetRealEstateAgencyActArgs = {
+  input: GetRealEstateAgencyActInput;
+};
+
+
+export type QueryGetRealEstateAgencyActsArgs = {
+  input?: InputMaybe<GetRealEstateAgencyActsInput>;
 };
 
 
@@ -881,20 +1206,34 @@ export type QueryGetScheduledPaymentsArgs = {
   input: GetScheduledPaymentsInput;
 };
 
+export type RealEstateAgencyAct = {
+  __typename?: 'RealEstateAgencyAct';
+  agency: BasicAgency;
+  agencyContract: AgencyContractWithRealEstateAgencyProperties;
+  clientContract: ClientContractWithObject;
+  realEstateAgencyAct: BasicRealEstateAgencyAct;
+};
+
+export type RealEstateAgencyActs = {
+  __typename?: 'RealEstateAgencyActs';
+  realEstateAgencyActs: Array<RealEstateAgencyAct>;
+  totalCount: Scalars['NonNegativeInt']['output'];
+};
+
 export type RealEstateAgencyContractPropertiesInput = {
-  agency_contract_commission: AgencyContractCommissionInput;
+  agencyContractCommission: AgencyContractCommissionInput;
 };
 
 export type RealEstateAgent = {
   __typename?: 'RealEstateAgent';
   agencies: Array<BasicAgency>;
-  real_estate_agent: BasicRealEstateAgent;
+  realEstateAgent: BasicRealEstateAgent;
 };
 
 export type RealEstateAgents = {
   __typename?: 'RealEstateAgents';
-  real_estate_agents: Array<RealEstateAgent>;
-  total_count: Scalars['NonNegativeInt']['output'];
+  realEstateAgents: Array<RealEstateAgent>;
+  totalCount: Scalars['NonNegativeInt']['output'];
 };
 
 export enum ScheduledPaymentType {
@@ -906,65 +1245,103 @@ export enum ScheduledPaymentType {
 
 export type ScheduledPayments = {
   __typename?: 'ScheduledPayments';
-  scheduled_payments: Array<BasicScheduledPayment>;
-  total_count: Scalars['NonNegativeInt']['output'];
+  scheduledPayments: Array<BasicScheduledPayment>;
+  totalCount: Scalars['NonNegativeInt']['output'];
 };
 
 export type UpdateAgencyContractInput = {
-  agency_contract_properties: UpdateAgencyContractPropertiesInput;
-  mip_agency_contract_properties?: InputMaybe<MipAgencyContractPropertiesInput>;
-  real_estate_agency_contract_properties?: InputMaybe<RealEstateAgencyContractPropertiesInput>;
+  agencyContractProperties: UpdateAgencyContractPropertiesInput;
+  mipAgencyContractProperties?: InputMaybe<MipAgencyContractPropertiesInput>;
+  realEstateAgencyContractProperties?: InputMaybe<RealEstateAgencyContractPropertiesInput>;
 };
 
 export type UpdateAgencyContractPropertiesInput = {
-  agency_contract_signatory_id?: InputMaybe<Scalars['PositiveInt']['input']>;
-  agency_id?: InputMaybe<Scalars['PositiveInt']['input']>;
-  entity_id?: InputMaybe<Scalars['PositiveInt']['input']>;
+  agencyContractSignatoryId?: InputMaybe<Scalars['PositiveInt']['input']>;
+  agencyId?: InputMaybe<Scalars['PositiveInt']['input']>;
+  date?: InputMaybe<Scalars['Date']['input']>;
+  entityId?: InputMaybe<Scalars['PositiveInt']['input']>;
   id: Scalars['PositiveInt']['input'];
-  object_id?: InputMaybe<Scalars['PositiveInt']['input']>;
-  responsible_user_id?: InputMaybe<Scalars['PositiveInt']['input']>;
+  number?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  objectId?: InputMaybe<Scalars['PositiveInt']['input']>;
+  responsibleUserId?: InputMaybe<Scalars['PositiveInt']['input']>;
+};
+
+export type UpdateBankInput = {
+  id: Scalars['PositiveInt']['input'];
+  isVisible?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
 export type UpdateClientContractInput = {
-  client_contract_properties: UpdateClientContractPropertiesInput;
-  ddu_client_contract_properties?: InputMaybe<DduClientContractPropertiesInput>;
+  clientContractProperties: UpdateClientContractPropertiesInput;
+  dduClientContractProperties?: InputMaybe<DduClientContractPropertiesInput>;
+  dkpClientContractProperties?: InputMaybe<DkpClientContractPropertiesInput>;
 };
 
 export type UpdateClientContractPropertiesInput = {
-  agency_contract_ids?: InputMaybe<Array<Scalars['PositiveInt']['input']>>;
-  bank_id?: InputMaybe<Scalars['PositiveInt']['input']>;
+  agencyContractIds?: InputMaybe<Array<Scalars['PositiveInt']['input']>>;
+  bankId?: InputMaybe<Scalars['PositiveInt']['input']>;
   clients?: InputMaybe<Array<ClientContractToClientInput>>;
+  comment?: InputMaybe<Scalars['String']['input']>;
   date?: InputMaybe<Scalars['Date']['input']>;
   id: Scalars['PositiveInt']['input'];
-  manager_id?: InputMaybe<Scalars['PositiveInt']['input']>;
+  isRealEstateAgencyActDisabled?: InputMaybe<Scalars['Boolean']['input']>;
+  managerId?: InputMaybe<Scalars['PositiveInt']['input']>;
   number?: InputMaybe<Scalars['NonEmptyString']['input']>;
   price?: InputMaybe<Scalars['PositiveDecimal']['input']>;
-  product_id?: InputMaybe<Scalars['PositiveInt']['input']>;
-  real_estate_agent_id?: InputMaybe<Scalars['PositiveInt']['input']>;
-  registration_date?: InputMaybe<Scalars['Date']['input']>;
+  productId?: InputMaybe<Scalars['PositiveInt']['input']>;
+  realEstateAgentId?: InputMaybe<Scalars['PositiveInt']['input']>;
+  registrationDate?: InputMaybe<Scalars['Date']['input']>;
+  subsidyId?: InputMaybe<Scalars['PositiveInt']['input']>;
 };
 
 export type UpdateClientInput = {
-  client_entity_properties?: InputMaybe<ClientEntityPropertiesInput>;
-  client_individual_minor_properties?: InputMaybe<ClientIndividualMinorPropertiesInput>;
-  client_individual_properties?: InputMaybe<ClientIndividualPropertiesInput>;
-  client_properties: UpdateClientPropertiesInput;
+  clientEntityProperties?: InputMaybe<ClientEntityPropertiesInput>;
+  clientIndividualMinorProperties?: InputMaybe<ClientIndividualMinorPropertiesInput>;
+  clientIndividualProperties?: InputMaybe<ClientIndividualPropertiesInput>;
+  clientProperties: UpdateClientPropertiesInput;
 };
 
 export type UpdateClientPropertiesInput = {
   address?: InputMaybe<Scalars['NonEmptyString']['input']>;
   email?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  full_name?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  fullName?: InputMaybe<Scalars['NonEmptyString']['input']>;
   id: Scalars['PositiveInt']['input'];
   inn?: InputMaybe<Scalars['NonEmptyString']['input']>;
   phone?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
-export type UpdateRealEstateAgentInput = {
-  agency_ids?: InputMaybe<Array<Scalars['PositiveInt']['input']>>;
-  full_name?: InputMaybe<Scalars['NonEmptyString']['input']>;
+export type UpdateRealEstateAgencyActInput = {
+  amount?: InputMaybe<Scalars['NonNegativeDecimal']['input']>;
+  date?: InputMaybe<Scalars['Date']['input']>;
   id: Scalars['PositiveInt']['input'];
+  note?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  number?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  retention?: InputMaybe<Scalars['NonNegativeDecimal']['input']>;
+};
+
+export type UpdateRealEstateAgentInput = {
+  agencyIds?: InputMaybe<Array<Scalars['PositiveInt']['input']>>;
+  fullName?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  id: Scalars['PositiveInt']['input'];
+  oneGtId?: InputMaybe<Scalars['PositiveInt']['input']>;
   phone?: InputMaybe<Scalars['NonEmptyString']['input']>;
+};
+
+export type UpdateSubsidyInput = {
+  id: Scalars['PositiveInt']['input'];
+  isVisible?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['NonEmptyString']['input']>;
+};
+
+export type UpdateUserInput = {
+  email?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  fullName?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  id: Scalars['PositiveInt']['input'];
+  isManager?: InputMaybe<Scalars['Boolean']['input']>;
+  isStaff?: InputMaybe<Scalars['Boolean']['input']>;
+  phone?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  userRole?: InputMaybe<UserRole>;
 };
 
 export enum UserRole {
@@ -972,13 +1349,3 @@ export enum UserRole {
   Director = 'DIRECTOR',
   SalesEmployee = 'SALES_EMPLOYEE'
 }
-
-export type CreateUserInAuthMutationVariables = Exact<{
-  input: CreateUserInput;
-}>;
-
-
-export type CreateUserInAuthMutation = { __typename?: 'Mutation', createUser: { __typename?: 'BasicUser', id: any, full_name: any, email: any, phone?: any | null, is_manager: boolean, user_role: UserRole } };
-
-
-export const CreateUserInAuthDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateUserInAuth"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateUserInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"full_name"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"phone"}},{"kind":"Field","name":{"kind":"Name","value":"is_manager"}},{"kind":"Field","name":{"kind":"Name","value":"user_role"}}]}}]}}]} as unknown as DocumentNode<CreateUserInAuthMutation, CreateUserInAuthMutationVariables>;

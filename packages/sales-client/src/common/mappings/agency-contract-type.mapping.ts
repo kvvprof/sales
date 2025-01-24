@@ -1,0 +1,4 @@
+export const AGENCY_CONTRACT_TYPE_MAPPING = {
+  REAL_ESTATE_AGENCY_CONTRACT: 'АН',
+  MIP_AGENCY_CONTRACT: 'МиП',
+} as const;

@@ -1,61 +1,80 @@
 import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginInlineTraceDisabled } from '@apollo/server/plugin/disabled';
-import { startStandaloneServer } from '@apollo/server/standalone';
 import { buildSubgraphSchema } from '@apollo/subgraph';
-import { mergeTypeDefs, mergeResolvers } from '@graphql-tools/merge';
+import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge';
+import bodyParser from 'body-parser';
+import express from 'express';
 import { inject, injectable } from 'inversify';
 
-import { ISchema } from '@/common/schema.interface';
-import { IConfigService } from '@/config/config.service.interface';
-import { IDatabaseService } from '@/database/database.service.interface';
-import { ILoggerService } from '@/logger/logger.service.interface';
-import { TYPES } from '@/types';
+import { IConfigService, ILoggerService, ISchema, TYPES } from '@/common';
+import { IDatabaseService } from '@/integrations';
 
 @injectable()
 export class App {
-	private readonly port: number;
+  private readonly app: express.Application;
+  private readonly port: number;
 
-	constructor(
-		@inject(TYPES.LoggerService) private readonly loggerService: ILoggerService,
-		@inject(TYPES.ConfigService) private readonly configService: IConfigService,
-		@inject(TYPES.DatabaseService)
-		private readonly databaseService: IDatabaseService,
-		@inject(TYPES.BaseSchema) private readonly baseSchema: ISchema,
-		@inject(TYPES.ProductSchema) private readonly productSchema: ISchema,
-	) {
-		this.port = parseInt(this.configService.get('PORT'), 10);
-	}
+  constructor(
+    @inject(TYPES.LoggerService) private readonly loggerService: ILoggerService,
+    @inject(TYPES.ConfigService) private readonly configService: IConfigService,
+    @inject(TYPES.DatabaseService)
+    private readonly databaseService: IDatabaseService,
+    @inject(TYPES.BaseSchema) private readonly baseSchema: ISchema,
+    @inject(TYPES.ProductSchema) private readonly productSchema: ISchema,
+  ) {
+    this.app = express();
+    this.port = parseInt(this.configService.get('PORT'), 10);
+  }
 
-	private buildSchema() {
-		const mergedTypeDefs = mergeTypeDefs([
-			this.baseSchema.getTypeDefs(),
-			this.productSchema.getTypeDefs(),
-		]);
+  private useMiddlewares() {
+    this.app.use(bodyParser.json({ limit: '50mb' }));
+    this.app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+  }
 
-		const mergedResolvers = mergeResolvers([
-			this.baseSchema.getResolvers(),
-			this.productSchema.getResolvers(),
-		]);
+  private buildSchema() {
+    const mergedTypeDefs = mergeTypeDefs([
+      this.baseSchema.getTypeDefs(),
+      this.productSchema.getTypeDefs(),
+    ]);
 
-		return buildSubgraphSchema({
-			typeDefs: [mergedTypeDefs],
-			resolvers: mergedResolvers as any,
-		});
-	}
+    const mergedResolvers = mergeResolvers([
+      this.baseSchema.getResolvers(),
+      this.productSchema.getResolvers(),
+    ]);
 
-	public async init() {
-		try {
-			await this.databaseService.connect();
-			const server = new ApolloServer({
-				schema: this.buildSchema(),
-				plugins: [ApolloServerPluginInlineTraceDisabled()],
-			});
-			await startStandaloneServer(server, {
-				listen: { port: this.port },
-			});
-			this.loggerService.info(`Server is running on port ${this.port}.`);
-		} catch (error) {
-			this.loggerService.error(error);
-		}
-	}
+    return buildSubgraphSchema({
+      typeDefs: [mergedTypeDefs],
+      resolvers: mergedResolvers as any,
+    });
+  }
+
+  private async useApolloServer() {
+    const server = new ApolloServer({
+      schema: this.buildSchema(),
+      plugins: [ApolloServerPluginInlineTraceDisabled()],
+    });
+
+    await server.start();
+
+    this.app.use(
+      '/',
+      expressMiddleware(server, {
+        context: async ({ req }) => ({ user: req.headers['user'] }),
+      }),
+    );
+  }
+
+  public async init() {
+    try {
+      await this.databaseService.connect();
+      this.useMiddlewares();
+      await this.useApolloServer();
+      this.app.listen(this.port, () => {
+        this.loggerService.info(`Server is running on port ${this.port}.`);
+      });
+    } catch (error) {
+      this.loggerService.error(error);
+    }
+  }
 }

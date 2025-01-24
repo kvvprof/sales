@@ -23,22 +23,22 @@ directive @link(url: String, as: String, for: link__Purpose, import: [link__Impo
 type ActualPayments
   @join__type(graph: SALES_MAIN)
 {
-  actual_payments: [BasicActualPayment!]!
-  total_count: NonNegativeInt!
+  actualPayments: [BasicActualPayment!]!
+  totalCount: NonNegativeInt!
 }
 
 type Agencies
   @join__type(graph: SALES_MAIN)
 {
   agencies: [BasicAgency!]!
-  total_count: NonNegativeInt!
+  totalCount: NonNegativeInt!
 }
 
 type Agency
   @join__type(graph: SALES_MAIN)
 {
   agency: BasicAgency!
-  agency_contracts: [BasicAgencyContract!]
+  agencyContracts: [BasicAgencyContract!]
 }
 
 type AgencyContract
@@ -47,18 +47,20 @@ type AgencyContract
   entity: BasicEntity!
   object: BasicObject!
   agency: BasicAgency!
-  responsible_user: BasicUser
-  agency_contract_properties: BasicAgencyContract!
-  agency_contract_signatory: BasicAgencyContractSignatory
-  real_estate_agency_contract_properties: BasicRealEstateAgencyContractProperties
-  mip_agency_contract_properties: BasicMIPAgencyContractProperties
+  responsibleUser: BasicUser
+  agencyContractProperties: BasicAgencyContract!
+  agencyContractSignatory: BasicAgencyContractSignatory
+  realEstateAgencyContractProperties: BasicRealEstateAgencyContractProperties
+  mipAgencyContractProperties: BasicMipAgencyContractProperties
 }
 
 type AgencyContractClientContract
   @join__type(graph: SALES_MAIN)
 {
   agency: BasicAgency!
-  agency_contract: BasicAgencyContract!
+  agencyContract: BasicAgencyContract!
+  realEstateAgencyContractProperties: BasicRealEstateAgencyContractProperties
+  mipAgencyContractProperties: BasicMipAgencyContractProperties
 }
 
 input AgencyContractCommissionInput
@@ -66,7 +68,7 @@ input AgencyContractCommissionInput
 {
   percent: NonNegativeDecimal!
   threshold: NonNegativeDecimal!
-  max_days: NonNegativeInt!
+  maxDays: NonNegativeInt!
 }
 
 enum AgencyContractType
@@ -74,6 +76,13 @@ enum AgencyContractType
 {
   REAL_ESTATE_AGENCY_CONTRACT @join__enumValue(graph: SALES_MAIN)
   MIP_AGENCY_CONTRACT @join__enumValue(graph: SALES_MAIN)
+}
+
+type AgencyContractWithRealEstateAgencyProperties
+  @join__type(graph: SALES_MAIN)
+{
+  agencyContract: BasicAgencyContract!
+  realEstateAgencyContractProperties: BasicRealEstateAgencyContractProperties
 }
 
 input BaseOptionsInput
@@ -91,13 +100,14 @@ type BasicActualPayment
   id: PositiveInt!
   payment: Decimal!
   date: Date!
+  clientContractId: PositiveInt!
 }
 
 type BasicAgency
   @join__type(graph: SALES_MAIN)
 {
   id: PositiveInt!
-  common_db_contractors_id: PositiveInt!
+  commonDbContractorsId: PositiveInt!
   name: NonEmptyString!
   inn: NonEmptyString
 }
@@ -108,7 +118,8 @@ type BasicAgencyContract
   id: PositiveInt!
   number: NonEmptyString!
   date: Date!
-  agency_contract_type: AgencyContractType!
+  agencyContractType: AgencyContractType!
+  link: NonEmptyString
 }
 
 type BasicAgencyContractCommission
@@ -116,18 +127,16 @@ type BasicAgencyContractCommission
 {
   percent: NonNegativeDecimal!
   threshold: NonNegativeDecimal!
-  max_days: NonNegativeInt!
+  maxDays: NonNegativeInt!
 }
 
 type BasicAgencyContractSignatory
   @join__type(graph: SALES_MAIN)
 {
   id: PositiveInt!
-  full_name: NonEmptyString!
-  email: NonEmptyString!
-  phone: NonEmptyString!
-  title: NonEmptyString!
-  based_on: NonEmptyString!
+  fullName: NonEmptyString!
+  basedOn: NonEmptyString
+  title: NonEmptyString
 }
 
 type BasicBank
@@ -135,18 +144,19 @@ type BasicBank
 {
   id: PositiveInt!
   name: NonEmptyString!
+  isVisible: Boolean!
 }
 
 type BasicClient
   @join__type(graph: SALES_MAIN)
 {
   id: PositiveInt!
-  full_name: NonEmptyString!
+  fullName: NonEmptyString!
   inn: NonEmptyString
   phone: NonEmptyString
   email: NonEmptyString
   address: NonEmptyString
-  client_category: ClientCategory!
+  clientCategory: ClientCategory!
 }
 
 type BasicClientContract
@@ -155,16 +165,19 @@ type BasicClientContract
   id: PositiveInt!
   number: NonEmptyString!
   date: Date!
-  registration_date: Date
+  registrationDate: Date
   price: PositiveDecimal!
-  client_contract_type: ClientContractType!
+  clientContractType: ClientContractType!
+  isRealEstateAgencyActDisabled: Boolean
+  comment: String
+  link: String
 }
 
 type BasicClientContractToClient
   @join__type(graph: SALES_MAIN)
 {
   client: BasicClient!
-  is_main: Boolean!
+  isMain: Boolean!
   share: NonNegativeInt!
 }
 
@@ -179,8 +192,8 @@ type BasicClientIndividualMinorProperties
 {
   dob: Date
   snils: NonEmptyString
-  birth_certificate: NonEmptyString
-  client_passport: BasicClientPassport
+  birthCertificate: NonEmptyString
+  clientPassport: BasicClientPassport
   representatives: [BasicClient!]
 }
 
@@ -189,7 +202,7 @@ type BasicClientIndividualProperties
 {
   dob: Date
   snils: NonEmptyString
-  client_passport: BasicClientPassport
+  clientPassport: BasicClientPassport
 }
 
 type BasicClientPassport
@@ -198,8 +211,8 @@ type BasicClientPassport
   number: NonEmptyString
   issued: NonEmptyString
   code: NonEmptyString
-  place_of_birth: NonEmptyString
-  registration_address: NonEmptyString
+  placeOfBirth: NonEmptyString
+  registrationAddress: NonEmptyString
 }
 
 type BasicCommonAccount
@@ -217,7 +230,7 @@ type BasicCommonBank
   name: String!
   city: String
   bik: String
-  correspondent_number: String
+  correspondentNumber: String
 }
 
 type BasicCommonContractor
@@ -225,16 +238,16 @@ type BasicCommonContractor
 {
   id: PositiveInt!
   name: String!
-  short_name: String
+  shortName: String
   inn: String
   kpp: String
   ogrn: String
-  legal_address: String
-  actual_address: String
+  legalAddress: String
+  actualAddress: String
   contacts: String
-  reconciliation_link: String
-  is_active: Boolean
-  propogated_at: DateTime
+  reconciliationLink: String
+  isActive: Boolean
+  propogatedAt: DateTime
   phone: String
 }
 
@@ -242,48 +255,78 @@ type BasicCommonEntity
   @join__type(graph: SALES_COMMON)
 {
   id: PositiveInt!
-  str_id: String!
+  strId: String!
   name: String!
-  short_name: String!
-  display_name: String!
+  shortName: String!
+  displayName: String!
   inn: String!
   kpp: String!
   ogrn: String!
-  db_name: String!
+  dbName: String!
 }
 
-type BasicDDUClientContractProperties
+type BasicDduClientContractProperties
   @join__type(graph: SALES_MAIN)
 {
   id: PositiveInt!
-  is_escrow_discount: Boolean
-  escrow_account_opening_date: Date
-  escrow_period: Date
-  escrow_account_number: NonEmptyString
-  ddu_link: NonEmptyString
-  return_account: NonEmptyString
+  isEscrowDiscount: Boolean
+  escrowAccountOpeningDate: Date
+  escrowPeriod: Date
+  escrowAccountNumber: NonEmptyString
+  dduLink: NonEmptyString
+  returnAccount: NonEmptyString
+}
+
+type BasicDkpClientContractProperties
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+  dkpLink: NonEmptyString
 }
 
 type BasicEntity
   @join__type(graph: SALES_MAIN)
 {
   id: PositiveInt!
-  common_db_entities_id: PositiveInt!
+  commonDbEntitiesId: PositiveInt!
   name: NonEmptyString!
   website: NonEmptyString
 }
 
-type BasicMIPAgencyContractProperties
+type BasicEscrowAccountHistory
   @join__type(graph: SALES_MAIN)
 {
-  agency_contract_commission: BasicAgencyContractCommission!
+  id: PositiveInt!
+  status: EscrowAccountStatus!
+  number: String!
+  openingDate: Date!
+  depositedAmount: Decimal!
+  incomingBalance: Decimal!
+  dateOfTransaction: Date!
+  transactionAmount: Decimal!
+  outgoingBalance: Decimal!
+  expirationDate: Date!
+  depositor: String!
+  depositorInn: String
+  dduNumber: String!
+  dduDate: Date!
+  loanAgreementNumber: String
+  loanAgreementDate: Date
+  closingDate: Date
+  builderInn: String!
+}
+
+type BasicMipAgencyContractProperties
+  @join__type(graph: SALES_MAIN)
+{
+  agencyContractCommission: BasicAgencyContractCommission!
 }
 
 type BasicObject
   @join__type(graph: SALES_MAIN)
 {
   id: PositiveInt!
-  common_db_objects_id: PositiveInt!
+  commonDbObjectsId: PositiveInt!
   name: NonEmptyString!
 }
 
@@ -309,7 +352,7 @@ type BasicPricingProduct
   number: NonEmptyString!
   area: NonNegativeDecimal!
   price: NonNegativeDecimal!
-  one_gt_id: PositiveInt
+  oneGtId: PositiveInt
 }
 
 type BasicPricingProductCategory
@@ -330,23 +373,47 @@ type BasicProduct
   @join__type(graph: SALES_MAIN)
 {
   id: PositiveInt!
-  pricing_products_id: PositiveInt!
+  pricingProductsId: PositiveInt!
   number: NonEmptyString!
-  product_category: ProductCategory!
+  productCategory: ProductCategory!
+}
+
+type BasicRealEstateAgencyAct
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+  number: NonEmptyString!
+  date: Date!
+  amount: NonNegativeDecimal!
+  link: NonEmptyString
+  retention: NonNegativeDecimal
+  note: NonEmptyString
 }
 
 type BasicRealEstateAgencyContractProperties
   @join__type(graph: SALES_MAIN)
 {
-  agency_contract_commission: BasicAgencyContractCommission!
+  agencyContractCommission: BasicAgencyContractCommission!
 }
 
 type BasicRealEstateAgent
   @join__type(graph: SALES_MAIN)
 {
   id: PositiveInt!
-  full_name: NonEmptyString!
+  fullName: NonEmptyString!
   phone: NonEmptyString
+  oneGtId: PositiveInt
+}
+
+type BasicRepresentative
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+  fullName: NonEmptyString!
+  attorneyNumber: NonEmptyString
+  attorneyDate: Date
+  authorizedBy: NonEmptyString
+  authorizedRole: NonEmptyString
 }
 
 type BasicScheduledPayment
@@ -355,27 +422,67 @@ type BasicScheduledPayment
   id: PositiveInt!
   payment: PositiveDecimal!
   date: Date!
-  scheduled_payment_type: ScheduledPaymentType!
+  scheduledPaymentType: ScheduledPaymentType!
+}
+
+type BasicSubsidy
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+  name: NonEmptyString!
+  isVisible: Boolean!
+}
+
+type BasicTransferAct
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+  number: NonEmptyString!
+  date: Date!
+  link: NonEmptyString
 }
 
 type BasicUser
   @join__type(graph: SALES_MAIN)
 {
   id: PositiveInt!
-  full_name: NonEmptyString!
+  fullName: NonEmptyString!
   email: NonEmptyString!
   phone: NonEmptyString
-  is_manager: Boolean!
-  user_role: UserRole!
+  isManager: Boolean!
+  userRole: UserRole!
+  isStaff: Boolean!
+}
+
+type CandidateType
+  @join__type(graph: SALES_MAIN)
+{
+  clientContractId: PositiveInt!
+  clientContractNumber: NonEmptyString!
+  clientContractType: ClientContractType!
+  clientContractPrice: PositiveDecimal!
+  agencyContractId: PositiveInt!
+  agencyContractNumber: NonEmptyString!
+  agencyContractPercent: NonNegativeDecimal!
+  agencyContractThreshold: NonNegativeDecimal!
+  agencyContractMaxDays: NonNegativeInt!
+  agencyId: PositiveInt!
+  agencyName: NonEmptyString!
+  transactionAmount: NonNegativeDecimal!
+  paymentPercentage: NonNegativeDecimal!
+  payAmount: NonNegativeDecimal!
+  mostRecentTransactionDate: Date
+  daysElapsed: NonNegativeInt!
 }
 
 type Client
   @join__type(graph: SALES_MAIN)
 {
-  client_properties: BasicClient!
-  client_individual_properties: BasicClientIndividualProperties
-  client_individual_minor_properties: BasicClientIndividualMinorProperties
-  client_entity_properties: BasicClientEntityProperties
+  clientProperties: BasicClient!
+  clientIndividualProperties: BasicClientIndividualProperties
+  clientIndividualMinorProperties: BasicClientIndividualMinorProperties
+  clientEntityProperties: BasicClientEntityProperties
+  representatives: [BasicRepresentative!]
 }
 
 enum ClientCategory
@@ -389,29 +496,38 @@ enum ClientCategory
 type ClientContract
   @join__type(graph: SALES_MAIN)
 {
-  client_contract_properties: BasicClientContract!
-  ddu_client_contract_properties: BasicDDUClientContractProperties
+  clientContractProperties: BasicClientContract!
+  dduClientContractProperties: BasicDduClientContractProperties
+  dkpClientContractProperties: BasicDkpClientContractProperties
   clients: [BasicClientContractToClient!]!
   object: BasicObject!
   product: Product!
   manager: BasicUser
-  real_estate_agent: BasicRealEstateAgent
-  agency_contracts: [AgencyContractClientContract]
+  realEstateAgent: BasicRealEstateAgent
+  agencyContracts: [AgencyContractClientContract]
   bank: BasicBank
+  subsidy: BasicSubsidy
 }
 
 type ClientContracts
   @join__type(graph: SALES_MAIN)
 {
-  client_contracts: [ClientContract!]!
-  total_count: NonNegativeInt!
+  clientContracts: [ClientContract!]!
+  totalCount: NonNegativeInt!
+}
+
+type ClientContractsWithTransactionAmount
+  @join__type(graph: SALES_MAIN)
+{
+  clientContract: ClientContract!
+  transactionAmount: PositiveDecimal!
 }
 
 input ClientContractToClientInput
   @join__type(graph: SALES_MAIN)
 {
-  client_id: PositiveInt!
-  is_main: Boolean!
+  clientId: PositiveInt!
+  isMain: Boolean!
   share: NonNegativeInt!
 }
 
@@ -420,6 +536,13 @@ enum ClientContractType
 {
   DDU @join__enumValue(graph: SALES_MAIN)
   DKP @join__enumValue(graph: SALES_MAIN)
+}
+
+type ClientContractWithObject
+  @join__type(graph: SALES_MAIN)
+{
+  clientContract: BasicClientContract!
+  object: BasicObject!
 }
 
 input ClientEntityPropertiesInput
@@ -433,9 +556,9 @@ input ClientIndividualMinorPropertiesInput
 {
   dob: Date
   snils: NonEmptyString
-  birth_certificate: NonEmptyString
-  client_passport: ClientPassportPropertiesInput
-  representative_ids: [PositiveInt!]
+  birthCertificate: NonEmptyString
+  clientPassport: ClientPassportPropertiesInput
+  representativeIds: [PositiveInt!]
 }
 
 input ClientIndividualPropertiesInput
@@ -443,7 +566,7 @@ input ClientIndividualPropertiesInput
 {
   dob: Date
   snils: NonEmptyString
-  client_passport: ClientPassportPropertiesInput
+  clientPassport: ClientPassportPropertiesInput
 }
 
 input ClientPassportPropertiesInput
@@ -452,15 +575,15 @@ input ClientPassportPropertiesInput
   number: NonEmptyString
   issued: NonEmptyString
   code: NonEmptyString
-  place_of_birth: NonEmptyString
-  registration_address: NonEmptyString
+  placeOfBirth: NonEmptyString
+  registrationAddress: NonEmptyString
 }
 
 type Clients
   @join__type(graph: SALES_MAIN)
 {
   clients: [Client!]!
-  total_count: NonNegativeInt!
+  totalCount: NonNegativeInt!
 }
 
 type CommonContractor
@@ -474,20 +597,20 @@ type CommonContractors
   @join__type(graph: SALES_COMMON)
 {
   contractors: [CommonContractor!]!
-  total_count: PositiveInt!
+  totalCount: PositiveInt!
 }
 
 type CommonEntities
   @join__type(graph: SALES_COMMON)
 {
   entities: [BasicCommonEntity!]!
-  total_count: PositiveInt!
+  totalCount: PositiveInt!
 }
 
 input CreateActualPaymentInput
   @join__type(graph: SALES_MAIN)
 {
-  client_contract_id: PositiveInt!
+  clientContractId: PositiveInt!
   payment: Decimal!
   date: Date!
 }
@@ -495,46 +618,61 @@ input CreateActualPaymentInput
 input CreateAgencyContractInput
   @join__type(graph: SALES_MAIN)
 {
-  agency_contract_properties: CreateAgencyContractPropertiesInput!
-  real_estate_agency_contract_properties: RealEstateAgencyContractPropertiesInput
-  mip_agency_contract_properties: MIPAgencyContractPropertiesInput
+  agencyContractProperties: CreateAgencyContractPropertiesInput!
+  realEstateAgencyContractProperties: RealEstateAgencyContractPropertiesInput
+  mipAgencyContractProperties: MipAgencyContractPropertiesInput
 }
 
 input CreateAgencyContractPropertiesInput
   @join__type(graph: SALES_MAIN)
 {
-  agency_id: PositiveInt!
-  object_id: PositiveInt!
-  entity_id: PositiveInt!
-  responsible_user_id: PositiveInt!
-  agency_contract_type: AgencyContractType!
-  agency_contract_signatory_id: PositiveInt
+  date: Date!
+  agencyId: PositiveInt!
+  objectId: PositiveInt!
+  entityId: PositiveInt!
+  responsibleUserId: PositiveInt!
+  agencyContractType: AgencyContractType!
+  agencyContractSignatoryId: PositiveInt
 }
 
 input CreateAgencyContractSignatoryInput
   @join__type(graph: SALES_MAIN)
 {
-  agency_id: PositiveInt!
-  full_name: NonEmptyString!
-  email: NonEmptyString!
-  phone: NonEmptyString!
-  title: NonEmptyString!
-  based_on: NonEmptyString!
+  agencyId: PositiveInt!
+  fullName: NonEmptyString!
+  basedOn: NonEmptyString
+  title: NonEmptyString
 }
 
 input CreateAgencyInput
   @join__type(graph: SALES_MAIN)
 {
   name: NonEmptyString!
-  common_db_contractors_id: PositiveInt!
+  commonDbContractorsId: PositiveInt!
   inn: NonEmptyString
+}
+
+input CreateAssignmentInput
+  @join__type(graph: SALES_MAIN)
+{
+  clientContractId: PositiveInt!
+  clientIdsFrom: [PositiveInt!]!
+  clientIdsTo: [PositiveInt!]!
+}
+
+input CreateBankInput
+  @join__type(graph: SALES_MAIN)
+{
+  name: NonEmptyString!
+  isVisible: Boolean!
 }
 
 input CreateClientContractInput
   @join__type(graph: SALES_MAIN)
 {
-  client_contract_properties: CreateClientContractPropertiesInput!
-  ddu_client_contract_properties: DDUClientContractPropertiesInput
+  clientContractProperties: CreateClientContractPropertiesInput!
+  dduClientContractProperties: DduClientContractPropertiesInput
+  dkpClientContractProperties: DkpClientContractPropertiesInput
 }
 
 input CreateClientContractPropertiesInput
@@ -543,70 +681,109 @@ input CreateClientContractPropertiesInput
   number: NonEmptyString!
   date: Date!
   price: PositiveDecimal!
-  registration_date: Date
-  client_contract_type: ClientContractType!
-  product_id: PositiveInt!
-  manager_id: PositiveInt
-  real_estate_agent_id: PositiveInt
-  bank_id: PositiveInt
+  registrationDate: Date
+  clientContractType: ClientContractType!
+  productId: PositiveInt!
+  managerId: PositiveInt
+  realEstateAgentId: PositiveInt
+  bankId: PositiveInt
+  subsidyId: PositiveInt
   clients: [ClientContractToClientInput!]!
-  agency_contract_ids: [PositiveInt!]
+  agencyContractIds: [PositiveInt!]
+  comment: String
 }
 
 input CreateClientInput
   @join__type(graph: SALES_MAIN)
 {
-  client_properties: CreateClientPropertiesInput!
-  client_individual_properties: ClientIndividualPropertiesInput
-  client_individual_minor_properties: ClientIndividualMinorPropertiesInput
-  client_entity_properties: ClientEntityPropertiesInput
+  clientProperties: CreateClientPropertiesInput!
+  clientIndividualProperties: ClientIndividualPropertiesInput
+  clientIndividualMinorProperties: ClientIndividualMinorPropertiesInput
+  clientEntityProperties: ClientEntityPropertiesInput
 }
 
 input CreateClientPropertiesInput
   @join__type(graph: SALES_MAIN)
 {
-  full_name: NonEmptyString!
+  fullName: NonEmptyString!
   inn: NonEmptyString
   phone: NonEmptyString
   address: NonEmptyString
   email: NonEmptyString
-  client_category: ClientCategory!
+  clientCategory: ClientCategory!
 }
 
 input CreateProductInput
   @join__type(graph: SALES_MAIN)
 {
-  pricing_products_id: PositiveInt!
+  pricingProductsId: PositiveInt!
   number: NonEmptyString!
-  object_id: PositiveInt!
-  product_category: ProductCategory!
+  objectId: PositiveInt!
+  productCategory: ProductCategory!
+}
+
+input CreateRealEstateAgencyActInput
+  @join__type(graph: SALES_MAIN)
+{
+  date: Date!
+  retention: NonNegativeDecimal
+  note: NonEmptyString
+  clientContractId: PositiveInt!
 }
 
 input CreateRealEstateAgentInput
   @join__type(graph: SALES_MAIN)
 {
-  full_name: NonEmptyString!
+  fullName: NonEmptyString!
   phone: NonEmptyString
-  agency_ids: [PositiveInt!]!
+  oneGtId: PositiveInt
+  agencyIds: [PositiveInt!]!
+}
+
+input CreateRepresentativeInput
+  @join__type(graph: SALES_MAIN)
+{
+  clientId: PositiveInt!
+  fullName: NonEmptyString!
+  attorneyNumber: NonEmptyString
+  attorneyDate: Date
+  authorizedBy: NonEmptyString
+  authorizedRole: NonEmptyString
 }
 
 input CreateScheduledPaymentInput
   @join__type(graph: SALES_MAIN)
 {
-  client_contract_id: PositiveInt!
+  clientContractId: PositiveInt!
   payment: PositiveDecimal!
   date: Date!
-  scheduled_payment_type: ScheduledPaymentType!
+  scheduledPaymentType: ScheduledPaymentType!
+}
+
+input CreateSubsidyInput
+  @join__type(graph: SALES_MAIN)
+{
+  name: NonEmptyString!
+  isVisible: Boolean!
+}
+
+input CreateTransferActInput
+  @join__type(graph: SALES_MAIN)
+{
+  date: Date!
+  clientContractId: PositiveInt!
+  representativeIds: [PositiveInt!]
 }
 
 input CreateUserInput
   @join__type(graph: SALES_MAIN)
 {
-  full_name: NonEmptyString!
+  fullName: NonEmptyString!
   email: NonEmptyString!
   phone: NonEmptyString
-  is_manager: Boolean!
-  user_role: UserRole!
+  isManager: Boolean!
+  isStaff: Boolean!
+  userRole: UserRole!
 }
 
 scalar Date
@@ -617,21 +794,57 @@ scalar DateTime
   @join__type(graph: SALES_MAIN)
   @join__type(graph: SALES_PRICING)
 
-input DDUClientContractPropertiesInput
+input DduClientContractPropertiesInput
   @join__type(graph: SALES_MAIN)
 {
-  ddu_link: NonEmptyString
-  return_account: NonEmptyString
-  escrow_account_opening_date: Date
-  escrow_period: Date
-  escrow_account_number: NonEmptyString
-  is_escrow_discount: Boolean
+  dduLink: NonEmptyString
+  returnAccount: NonEmptyString
+  escrowAccountOpeningDate: Date
+  escrowPeriod: Date
+  escrowAccountNumber: NonEmptyString
+  isEscrowDiscount: Boolean
 }
 
 scalar Decimal
   @join__type(graph: SALES_COMMON)
   @join__type(graph: SALES_MAIN)
   @join__type(graph: SALES_PRICING)
+
+input DeleteActualPaymentInput
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+}
+
+input DeleteBankInput
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+}
+
+input DeleteScheduledPaymentInput
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+}
+
+input DeleteSubsidyInput
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+}
+
+input DeleteUserInput
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+}
+
+input DkpClientContractPropertiesInput
+  @join__type(graph: SALES_MAIN)
+{
+  dkpLink: NonEmptyString
+}
 
 type Entity
   @join__type(graph: SALES_MAIN)
@@ -640,10 +853,46 @@ type Entity
   objects: [BasicObject!]!
 }
 
+input EscrowAccountHistoryInput
+  @join__type(graph: SALES_MAIN)
+{
+  status: EscrowAccountStatus!
+  number: String!
+  openingDate: Date!
+  depositedAmount: Decimal!
+  incomingBalance: Decimal!
+  dateOfTransaction: Date!
+  transactionAmount: Decimal!
+  outgoingBalance: Decimal!
+  expirationDate: Date!
+  depositor: String!
+  depositorInn: String
+  dduNumber: String!
+  dduDate: Date!
+  loanAgreementNumber: String
+  loanAgreementDate: Date
+  closingDate: Date
+  builderInn: String!
+}
+
+type EscrowAccountsHistory
+  @join__type(graph: SALES_MAIN)
+{
+  escrowAccountsHistory: [BasicEscrowAccountHistory!]!
+  totalCount: NonNegativeInt!
+}
+
+enum EscrowAccountStatus
+  @join__type(graph: SALES_MAIN)
+{
+  OPENED @join__enumValue(graph: SALES_MAIN)
+  CLOSED @join__enumValue(graph: SALES_MAIN)
+}
+
 input GetActualPaymentsInput
   @join__type(graph: SALES_MAIN)
 {
-  client_contract_id: PositiveInt!
+  clientContractId: PositiveInt!
   options: BasicOptionsInput
 }
 
@@ -662,14 +911,14 @@ input GetAgencyContractInput
 input GetAgencyContractSignatoriesInput
   @join__type(graph: SALES_MAIN)
 {
-  agency_id: PositiveInt!
+  agencyId: PositiveInt!
 }
 
 input GetAgencyContractsInput
   @join__type(graph: SALES_MAIN)
 {
-  agency_id: PositiveInt!
-  object_id: PositiveInt
+  agencyId: PositiveInt!
+  objectId: PositiveInt
 }
 
 input GetAgencyInput
@@ -693,7 +942,7 @@ input GetClientContractsByIdsInput
 input GetClientContractsInput
   @join__type(graph: SALES_MAIN)
 {
-  object_id: PositiveInt
+  objectId: PositiveInt
   options: BasicOptionsInput
 }
 
@@ -733,6 +982,18 @@ input GetCommonEntityInput
   id: PositiveInt!
 }
 
+input GetEscrowAccountsHistoryByDduNumberInput
+  @join__type(graph: SALES_MAIN)
+{
+  dduNumber: NonEmptyString!
+}
+
+input GetEscrowAccountsHistoryInput
+  @join__type(graph: SALES_MAIN)
+{
+  options: BasicOptionsInput
+}
+
 input GetObjectInput
   @join__type(graph: SALES_MAIN)
 {
@@ -748,8 +1009,20 @@ input GetPricingProductInput
 input GetPricingProductsInput
   @join__type(graph: SALES_PRICING)
 {
-  object_id: PositiveInt!
+  objectId: PositiveInt!
   options: BaseOptionsInput
+}
+
+input GetRealEstateAgencyActInput
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+}
+
+input GetRealEstateAgencyActsInput
+  @join__type(graph: SALES_MAIN)
+{
+  options: BasicOptionsInput
 }
 
 input GetRealEstateAgentInput
@@ -764,11 +1037,35 @@ input GetRealEstateAgentsInput
   options: BasicOptionsInput
 }
 
+input GetRepresentativesByClientIdsInput
+  @join__type(graph: SALES_MAIN)
+{
+  clientIds: [PositiveInt!]!
+}
+
 input GetScheduledPaymentsInput
   @join__type(graph: SALES_MAIN)
 {
-  client_contract_id: PositiveInt!
+  clientContractId: PositiveInt!
   options: BasicOptionsInput
+}
+
+input GetTransferActInput
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+}
+
+input GetTransferActsInput
+  @join__type(graph: SALES_MAIN)
+{
+  options: BasicOptionsInput
+}
+
+type IsDeleted
+  @join__type(graph: SALES_MAIN)
+{
+  isDeleted: Boolean!
 }
 
 scalar join__FieldSet
@@ -798,16 +1095,17 @@ enum link__Purpose {
   EXECUTION
 }
 
-input MIPAgencyContractPropertiesInput
+input MipAgencyContractPropertiesInput
   @join__type(graph: SALES_MAIN)
 {
-  agency_contract_commission: AgencyContractCommissionInput!
+  agencyContractCommission: AgencyContractCommissionInput!
 }
 
 type Mutation
   @join__type(graph: SALES_MAIN)
 {
   createClient(input: CreateClientInput!): BasicClient!
+  createRepresentative(input: CreateRepresentativeInput!): BasicRepresentative!
   updateClient(input: UpdateClientInput!): BasicClient!
   createProduct(input: CreateProductInput!): Product!
   createClientContract(input: CreateClientContractInput!): BasicClientContract!
@@ -817,10 +1115,30 @@ type Mutation
   createAgencyContract(input: CreateAgencyContractInput!): BasicAgencyContract!
   updateAgencyContract(input: UpdateAgencyContractInput!): BasicAgencyContract!
   createUser(input: CreateUserInput!): BasicUser!
+  createStaff(input: CreateUserInput!): BasicUser!
+  updateUser(input: UpdateUserInput!): BasicUser!
+  deleteUser(input: DeleteUserInput!): Boolean!
   createRealEstateAgent(input: CreateRealEstateAgentInput!): BasicRealEstateAgent!
   updateRealEstateAgent(input: UpdateRealEstateAgentInput!): BasicRealEstateAgent!
+  createBank(input: CreateBankInput!): BasicBank!
+  updateBank(input: UpdateBankInput!): BasicBank!
+  deleteBank(input: DeleteBankInput!): Boolean!
   createScheduledPayment(input: CreateScheduledPaymentInput!): BasicScheduledPayment!
+  createScheduledPayments(input: [CreateScheduledPaymentInput!]!): Boolean!
+  deleteScheduledPayment(input: DeleteScheduledPaymentInput!): IsDeleted!
   createActualPayment(input: CreateActualPaymentInput!): BasicActualPayment!
+  createActualPayments(input: [CreateActualPaymentInput!]!): Boolean!
+  deleteActualPayment(input: DeleteActualPaymentInput!): IsDeleted!
+  createEscrowAccountsHistory(input: [EscrowAccountHistoryInput!]!): Boolean!
+  createRealEstateAgencyAct(input: CreateRealEstateAgencyActInput!): BasicRealEstateAgencyAct!
+  updateRealEstateAgencyAct(input: UpdateRealEstateAgencyActInput!): BasicRealEstateAgencyAct!
+  createSubsidy(input: CreateSubsidyInput!): BasicSubsidy!
+  updateSubsidy(input: UpdateSubsidyInput!): BasicSubsidy!
+  deleteSubsidy(input: DeleteSubsidyInput!): Boolean!
+  createAssignment(input: CreateAssignmentInput!): Boolean!
+  createTransferAct(input: CreateTransferActInput!): BasicTransferAct!
+  updateTransferAct(input: UpdateTransferActInput!): BasicTransferAct!
+  updateRepresentative(input: UpdateRepresentativeInput!): BasicRepresentative!
 }
 
 scalar NonEmptyString
@@ -854,14 +1172,14 @@ type PricingProduct
   product: BasicPricingProduct!
   object: BasicPricingObject!
   category: BasicPricingProductCategory!
-  product_type: BasicPricingProductType
+  productType: BasicPricingProductType
 }
 
 type PricingProducts
   @join__type(graph: SALES_PRICING)
 {
   products: [PricingProduct!]!
-  total_count: PositiveInt!
+  totalCount: PositiveInt!
 }
 
 type Product
@@ -896,6 +1214,7 @@ type Query
   getObjects: [BasicObject!]! @join__field(graph: SALES_MAIN)
   getClientContract(input: GetClientContractInput!): ClientContract! @join__field(graph: SALES_MAIN)
   getClientContracts(input: GetClientContractsInput): ClientContracts! @join__field(graph: SALES_MAIN)
+  getClientContractsWithoutTransferAct(input: GetClientContractsInput): ClientContracts! @join__field(graph: SALES_MAIN)
   getClientContractsByIds(input: GetClientContractsByIdsInput!): ClientContracts! @join__field(graph: SALES_MAIN)
   getAgency(input: GetAgencyInput!): Agency! @join__field(graph: SALES_MAIN)
   getAgencies(input: GetAgenciesInput): Agencies! @join__field(graph: SALES_MAIN)
@@ -909,35 +1228,67 @@ type Query
   getScheduledPayments(input: GetScheduledPaymentsInput!): ScheduledPayments! @join__field(graph: SALES_MAIN)
   getActualPayments(input: GetActualPaymentsInput!): ActualPayments! @join__field(graph: SALES_MAIN)
   getEntities: [Entity!]! @join__field(graph: SALES_MAIN)
+  getEscrowAccountsHistory(input: GetEscrowAccountsHistoryInput): EscrowAccountsHistory! @join__field(graph: SALES_MAIN)
+  getEscrowAccountsHistoryByDduNumber(input: GetEscrowAccountsHistoryByDduNumberInput!): [BasicEscrowAccountHistory!]! @join__field(graph: SALES_MAIN)
+  getRealEstateAgencyAct(input: GetRealEstateAgencyActInput!): RealEstateAgencyAct! @join__field(graph: SALES_MAIN)
+  getRealEstateAgencyActs(input: GetRealEstateAgencyActsInput): RealEstateAgencyActs! @join__field(graph: SALES_MAIN)
+  getSubsidies: [BasicSubsidy!]! @join__field(graph: SALES_MAIN)
+  getRealEstateAgencyActCandidates: [CandidateType!]! @join__field(graph: SALES_MAIN)
+  getTransferAct(input: GetTransferActInput!): TransferAct! @join__field(graph: SALES_MAIN)
+  getTransferActs(input: GetTransferActsInput!): TransferActs! @join__field(graph: SALES_MAIN)
+  getRepresentativesByClientIds(input: GetRepresentativesByClientIdsInput!): [Representative!]! @join__field(graph: SALES_MAIN)
   getPricingProduct(input: GetPricingProductInput!): PricingProduct! @join__field(graph: SALES_PRICING)
   getPricingProducts(input: GetPricingProductsInput!): PricingProducts! @join__field(graph: SALES_PRICING)
+}
+
+type RealEstateAgencyAct
+  @join__type(graph: SALES_MAIN)
+{
+  realEstateAgencyAct: BasicRealEstateAgencyAct!
+  agency: BasicAgency!
+  clientContract: ClientContractWithObject!
+  agencyContract: AgencyContractWithRealEstateAgencyProperties!
+}
+
+type RealEstateAgencyActs
+  @join__type(graph: SALES_MAIN)
+{
+  realEstateAgencyActs: [RealEstateAgencyAct!]!
+  totalCount: NonNegativeInt!
 }
 
 input RealEstateAgencyContractPropertiesInput
   @join__type(graph: SALES_MAIN)
 {
-  agency_contract_commission: AgencyContractCommissionInput!
+  agencyContractCommission: AgencyContractCommissionInput!
 }
 
 type RealEstateAgent
   @join__type(graph: SALES_MAIN)
 {
-  real_estate_agent: BasicRealEstateAgent!
+  realEstateAgent: BasicRealEstateAgent!
   agencies: [BasicAgency!]!
 }
 
 type RealEstateAgents
   @join__type(graph: SALES_MAIN)
 {
-  real_estate_agents: [RealEstateAgent!]!
-  total_count: NonNegativeInt!
+  realEstateAgents: [RealEstateAgent!]!
+  totalCount: NonNegativeInt!
+}
+
+type Representative
+  @join__type(graph: SALES_MAIN)
+{
+  representative: BasicRepresentative!
+  client: BasicClient!
 }
 
 type ScheduledPayments
   @join__type(graph: SALES_MAIN)
 {
-  scheduled_payments: [BasicScheduledPayment!]!
-  total_count: NonNegativeInt!
+  scheduledPayments: [BasicScheduledPayment!]!
+  totalCount: NonNegativeInt!
 }
 
 enum ScheduledPaymentType
@@ -949,30 +1300,59 @@ enum ScheduledPaymentType
   MATERNITY_CAPITAL @join__enumValue(graph: SALES_MAIN)
 }
 
+type TransferAct
+  @join__type(graph: SALES_MAIN)
+{
+  transferAct: BasicTransferAct!
+  clientContract: BasicClientContract!
+  object: BasicObject!
+  product: BasicProduct!
+  representatives: [Representative!]
+  clients: [BasicClient!]
+}
+
+type TransferActs
+  @join__type(graph: SALES_MAIN)
+{
+  transferActs: [TransferAct!]!
+  totalCount: NonNegativeInt!
+}
+
 input UpdateAgencyContractInput
   @join__type(graph: SALES_MAIN)
 {
-  agency_contract_properties: UpdateAgencyContractPropertiesInput!
-  real_estate_agency_contract_properties: RealEstateAgencyContractPropertiesInput
-  mip_agency_contract_properties: MIPAgencyContractPropertiesInput
+  agencyContractProperties: UpdateAgencyContractPropertiesInput!
+  realEstateAgencyContractProperties: RealEstateAgencyContractPropertiesInput
+  mipAgencyContractProperties: MipAgencyContractPropertiesInput
 }
 
 input UpdateAgencyContractPropertiesInput
   @join__type(graph: SALES_MAIN)
 {
   id: PositiveInt!
-  agency_id: PositiveInt
-  object_id: PositiveInt
-  entity_id: PositiveInt
-  responsible_user_id: PositiveInt
-  agency_contract_signatory_id: PositiveInt
+  number: NonEmptyString
+  date: Date
+  agencyId: PositiveInt
+  objectId: PositiveInt
+  entityId: PositiveInt
+  responsibleUserId: PositiveInt
+  agencyContractSignatoryId: PositiveInt
+}
+
+input UpdateBankInput
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+  name: NonEmptyString
+  isVisible: Boolean
 }
 
 input UpdateClientContractInput
   @join__type(graph: SALES_MAIN)
 {
-  client_contract_properties: UpdateClientContractPropertiesInput!
-  ddu_client_contract_properties: DDUClientContractPropertiesInput
+  clientContractProperties: UpdateClientContractPropertiesInput!
+  dduClientContractProperties: DduClientContractPropertiesInput
+  dkpClientContractProperties: DkpClientContractPropertiesInput
 }
 
 input UpdateClientContractPropertiesInput
@@ -982,42 +1362,94 @@ input UpdateClientContractPropertiesInput
   number: NonEmptyString
   date: Date
   price: PositiveDecimal
-  registration_date: Date
-  product_id: PositiveInt
-  manager_id: PositiveInt
-  real_estate_agent_id: PositiveInt
-  bank_id: PositiveInt
+  registrationDate: Date
+  productId: PositiveInt
+  managerId: PositiveInt
+  realEstateAgentId: PositiveInt
+  bankId: PositiveInt
+  subsidyId: PositiveInt
   clients: [ClientContractToClientInput!]
-  agency_contract_ids: [PositiveInt!]
+  agencyContractIds: [PositiveInt!]
+  isRealEstateAgencyActDisabled: Boolean
+  comment: String
 }
 
 input UpdateClientInput
   @join__type(graph: SALES_MAIN)
 {
-  client_properties: UpdateClientPropertiesInput!
-  client_individual_properties: ClientIndividualPropertiesInput
-  client_individual_minor_properties: ClientIndividualMinorPropertiesInput
-  client_entity_properties: ClientEntityPropertiesInput
+  clientProperties: UpdateClientPropertiesInput!
+  clientIndividualProperties: ClientIndividualPropertiesInput
+  clientIndividualMinorProperties: ClientIndividualMinorPropertiesInput
+  clientEntityProperties: ClientEntityPropertiesInput
 }
 
 input UpdateClientPropertiesInput
   @join__type(graph: SALES_MAIN)
 {
   id: PositiveInt!
-  full_name: NonEmptyString
+  fullName: NonEmptyString
   inn: NonEmptyString
   phone: NonEmptyString
   address: NonEmptyString
   email: NonEmptyString
 }
 
+input UpdateRealEstateAgencyActInput
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+  date: Date
+  retention: NonNegativeDecimal
+  note: NonEmptyString
+}
+
 input UpdateRealEstateAgentInput
   @join__type(graph: SALES_MAIN)
 {
   id: PositiveInt!
-  full_name: NonEmptyString
+  fullName: NonEmptyString
   phone: NonEmptyString
-  agency_ids: [PositiveInt!]
+  oneGtId: PositiveInt
+  agencyIds: [PositiveInt!]
+}
+
+input UpdateRepresentativeInput
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+  fullName: NonEmptyString
+  attorneyNumber: NonEmptyString
+  attorneyDate: Date
+  authorizedBy: NonEmptyString
+  authorizedRole: NonEmptyString
+}
+
+input UpdateSubsidyInput
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+  name: NonEmptyString
+  isVisible: Boolean
+}
+
+input UpdateTransferActInput
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+  date: Date
+  representativeIds: [PositiveInt!]
+}
+
+input UpdateUserInput
+  @join__type(graph: SALES_MAIN)
+{
+  id: PositiveInt!
+  fullName: NonEmptyString
+  email: NonEmptyString
+  phone: NonEmptyString
+  isManager: Boolean
+  isStaff: Boolean
+  userRole: UserRole
 }
 
 enum UserRole

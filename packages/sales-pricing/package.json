@@ -1,18 +1,21 @@
 {
-	"name": "sales-pricing",
-	"private": true,
-	"main": "main.ts",
-	"scripts": {
-		"dev": "NODE_ENV=DEVELOPMENT nodemon",
-		"build": "rimraf dist && tsc && npm run prisma:copy && tsc-alias",
-		"start": "npm run build && NODE_ENV=PRODUCTION node dist/main.js",
-		"codegen": "SCHEMA_PATH=http://localhost:9003 graphql-code-generator --config ../../codegen.server.ts",
-		"eslint": "eslint --quiet src",
-		"eslint:fix": "eslint --quiet src --fix",
-		"prisma:copy": "cpy 'src/database/prisma/output/**/*' 'dist/database/prisma/output' --parents",
-		"prisma:dev:pull": "dotenv -e .env.development -- npx prisma db pull --schema=./src/database/prisma/schema.prisma",
-		"prisma:dev:generate": "dotenv -e .env.development -- npx prisma generate --schema=./src/database/prisma/schema.prisma",
-		"prisma:prod:pull": "dotenv -e .env.production -- npx prisma db pull --schema=./src/database/prisma/schema.prisma",
-		"prisma:prod:generate": "dotenv -e .env.production -- npx prisma generate --schema=./src/database/prisma/schema.prisma"
-	}
+  "name": "sales-pricing",
+  "private": true,
+  "main": "main.ts",
+  "config": {
+    "prismaSchema": "./src/integrations/database/prisma/schema.prisma"
+  },
+  "scripts": {
+    "dev": "NODE_ENV=DEVELOPMENT nodemon",
+    "build": "rimraf dist && tsc && npm run prisma:copy && tsc-alias",
+    "start": "npm run build && NODE_ENV=PRODUCTION node dist/main.js",
+    "codegen": "SCHEMA_PATH=http://localhost:9003 graphql-code-generator --config ../../codegen.server.ts",
+    "eslint": "eslint --quiet src",
+    "eslint:fix": "eslint --quiet src --fix",
+    "prisma:copy": "cpy 'src/integrations/database/prisma/output/**/*' 'dist/integrations/database/prisma/output' --parents",
+    "prisma:dev:pull": "dotenv -e .env.development -- npx prisma db pull --schema=${npm_package_config_prismaSchema}",
+    "prisma:dev:generate": "dotenv -e .env.development -- npx prisma generate --schema=${npm_package_config_prismaSchema}",
+    "prisma:prod:pull": "dotenv -e .env.production -- npx prisma db pull --schema=${npm_package_config_prismaSchema}",
+    "prisma:prod:generate": "dotenv -e .env.production -- npx prisma generate --schema=${npm_package_config_prismaSchema}"
+  }
 }
